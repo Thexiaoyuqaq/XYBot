@@ -13,7 +13,6 @@ class Log:
     """
     简陋的日志发送
     """
-
     def __init__(self):
         if sys.platform.lower().startswith("win"):
             # 适配windows终端彩色字体，其他系统暂不支持
@@ -27,16 +26,7 @@ class Log:
         return text
 
     @staticmethod
-    def color_text_windows(text: str,
-                           color: Literal[
-                               "black",
-                               "red",
-                               "green",
-                               "yellow",
-                               "blue",
-                               "magenta",
-                               "cyan",
-                               "white"]) -> str:
+    def color_text_windows(text: str, color: str) -> str:
         """
         可以拿来单独使用
         :param text: 文本
