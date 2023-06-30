@@ -30,20 +30,6 @@ async def handle_message(event_original):#消息处理
             await Plugins_Notice_join(event_original, plugins)
         if event_Notice_Type == "group_decrease":#群人数减少
             await Plugins_Notice_leave(event_original, plugins)
-        
-
-async def Message_ServerStuats_class(event_message_Group_ID,event_message_Message_ID): #消息处理-服务器状态
-    browser = await launch()
-    page = await browser.newPage()
-    await page.setViewport({'width': 1920, 'height': 1080})  # 根据需要调整视口大小
-    await page.setJavaScriptEnabled(enabled=True)
-    url = 'http://127.0.0.1:13071/'  # 将"url"替换为你要访问的网页地址
-    await page.goto(url)
-    screenshot_path = './img/screenshot.png'  # 指定截图保存的路径和文件名
-    await page.screenshot({'path': screenshot_path, 'fullPage': True})  # 设置fullPage参数为True，截取整个页面
-    await browser.close()
-    await send_Groupmessage(event_message_Group_ID,event_message_Message_ID,"[CQ:image,file=http://127.0.0.1:13081/screenshot.png,cache=0]",True)
-
 async def main():#循环主文件 
     try:
         #Remove_Thread = threading.Thread(target=remove_mysql_class)
