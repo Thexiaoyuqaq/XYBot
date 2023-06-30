@@ -76,9 +76,11 @@ async def start_server() -> None:
                 # 使用异步事件循环在多线程中调用处理消息的函数
                 asyncio.create_task(handle_message(message))
 
-try:
-    asyncio.run(main())
-except Exception as e:
-    logger.error(message="asyncio.run 出错：" + str(e))
-except KeyboardInterrupt as e:
-    pass
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        logger.error(message="asyncio.run 出错：" + str(e))
+    except KeyboardInterrupt as e:
+        pass
