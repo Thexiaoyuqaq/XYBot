@@ -95,3 +95,5 @@ class Log:
         log_type = self.color_text('调试', 'cyan')
         flag = self.color_text(flag, 'cyan')
         print(f"{timestamp} [{log_type}] {flag}| {message}")
+
+

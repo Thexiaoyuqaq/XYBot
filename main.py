@@ -13,6 +13,7 @@ import concurrent.futures
 # 加载插件
 plugins = load_plugins()
 load_config('config.ini')
+logger = Log()
 
 async def handle_message(event_original: str) -> None:
     """
@@ -55,7 +56,7 @@ async def main() -> None:
     try:
         await start_server()
     except Exception as e:
-        print("主程序出错：" + str(e))
+        logger.warning(message="主程序出错：" + str(e))
 
 async def start_server() -> None:
     """
@@ -66,11 +67,8 @@ async def start_server() -> None:
     """
     host = get_config('gocq', 'host')
     ws_port = get_config('gocq', 'ws_port')
-    curr_time = datetime.datetime.now()
-    time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-    event_Time = "[" + time_str + "]"
     async with websockets.connect('ws://{}:{}'.format(host, ws_port)) as websocket:
-        print(event_Time + f"[信息][系统][WS] Go-CQHTTP协议握手成功")
+        logger.info(message=f"[信息][系统][WS] Go-CQHTTP协议握手成功")
         # 使用多线程处理消息
         with concurrent.futures.ThreadPoolExecutor() as executor:
             while True:
@@ -81,6 +79,6 @@ async def start_server() -> None:
 try:
     asyncio.run(main())
 except Exception as e:
-    print("asyncio.run 出错：" + str(e))
+    logger.error(message="asyncio.run 出错：" + str(e))
 except KeyboardInterrupt as e:
     pass
