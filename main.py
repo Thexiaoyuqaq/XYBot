@@ -68,7 +68,7 @@ async def start_server() -> None:
     host = get_config('gocq', 'host')
     ws_port = get_config('gocq', 'ws_port')
     async with websockets.connect('ws://{}:{}'.format(host, ws_port)) as websocket:
-        logger.info(message=f"[信息][系统][WS] Go-CQHTTP协议握手成功")
+        logger.info(message=f"[系统][WS] Go-CQHTTP协议握手成功")
         # 使用多线程处理消息
         with concurrent.futures.ThreadPoolExecutor() as executor:
             while True:
