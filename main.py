@@ -56,7 +56,7 @@ async def main() -> None:
     try:
         await start_server()
     except Exception as e:
-        logger.warning(message="主程序出错：" + str(e))
+        logger.error(message="主程序出错：" + str(e))
 
 async def start_server() -> None:
     """
