@@ -40,3 +40,5 @@ def load_plugins():
                 logger.error(message=f"加载插件 {module_name} 失败，加载发生错误：{e}", flag=FILE_NAME)
     logger.info(message=f"已成功加载 {loadedPlugins.__len__()} 个插件", flag=FILE_NAME)
     return loadedPlugins
+
+
