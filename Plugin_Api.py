@@ -1,6 +1,9 @@
 import datetime
 import importlib
 import os
+from LogSys import Log
+
+logger = Log()
 
 
 def load_plugins():
@@ -10,12 +13,9 @@ def load_plugins():
     Returns:
         list: 插件对象列表
     """
-    curr_time = datetime.datetime.now()
-    time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-    event_Time = "[" + time_str + "]"
     plugins = []
     plugin_dir = "plugins"  # 插件目录路径
-    print(event_Time + f"[信息][系统] 正在加载插件")
+    logger.info(message=f"[系统] 正在加载插件")
 
     # 遍历插件目录中的文件
     for plugin_file in os.listdir(plugin_dir):
@@ -28,13 +28,13 @@ def load_plugins():
                 spec.loader.exec_module(module)
                 if hasattr(module, "Plugin") and callable(getattr(module, "Plugin")):
                     plugins.append((module_name, getattr(module, "Plugin")()))
-                    print(event_Time + f"[信息][插件][加载][{module_name}] 插件已加载")
+                    logger.info(f"[插件][加载][{module_name}] 插件已加载")
                 else:
-                    print(event_Time + f"[警告][插件][跳过][{module_name}] Error: 插件缺少主要类'Plugin',跳过加载")
+                    logger.warning(f"[插件][跳过][{module_name}] Error: 插件缺少主要类'Plugin',跳过加载")
             except Exception as e:
-                print(event_Time + f"[错误][插件][加载][{module_name}] Error: {str(e)}")
-    print(event_Time + f"[信息][插件][系统] 全部插件已加载完毕")
-    print(event_Time + f"[信息][系统] 正在等待Go-CQHTTP协议握手")
+                logger.error(f"[插件][加载][{module_name}] Error: {str(e)}")
+    logger.info(f"[插件][系统] 全部插件已加载完毕")
+    logger.info(f"[系统] 正在等待Go-CQHTTP协议握手")
 
     return plugins
 
@@ -53,15 +53,12 @@ async def Plugins_Group_Message(message, plugins):
             try:
                 await plugin.GroupMessage(message)
             except Exception as e:
-                curr_time = datetime.datetime.now()
-                time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-                event_Time = "[" + time_str + "]"
-                print(event_Time + f"[错误][插件][执行][消息][{plugin_name}] Error: {str(e)}")
+                logger.error(f"[插件][执行][消息][{plugin_name}] Error: {str(e)}")
         else:
             curr_time = datetime.datetime.now()
             time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
             event_Time = "[" + time_str + "]"
-            #print(event_Time + f"[警告][插件][跳过][消息][{plugin_name}] 插件缺少 'GroupMessage' 方法，跳过执行。")
+            # print(event_Time + f"[警告][插件][跳过][消息][{plugin_name}] 插件缺少 'GroupMessage' 方法，跳过执行。")
 
 
 async def Plugins_Request(message, plugins):
@@ -78,15 +75,12 @@ async def Plugins_Request(message, plugins):
             try:
                 await plugin.Request(message)
             except Exception as e:
-                curr_time = datetime.datetime.now()
-                time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-                event_Time = "[" + time_str + "]"
-                print(event_Time + f"[错误][插件][执行][事件][请求][{plugin_name}] Error: {str(e)}")
+                logger.error(f"[插件][执行][事件][请求][{plugin_name}] Error: {str(e)}")
         else:
             curr_time = datetime.datetime.now()
             time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
             event_Time = "[" + time_str + "]"
-            #print(event_Time + f"[警告][插件][跳过][事件][请求][{plugin_name}] 插件缺少 'Request' 方法，跳过执行。")
+            # print(event_Time + f"[警告][插件][跳过][事件][请求][{plugin_name}] 插件缺少 'Request' 方法，跳过执行。")
 
 
 async def Plugins_Notice_join(message, plugins):
@@ -103,15 +97,12 @@ async def Plugins_Notice_join(message, plugins):
             try:
                 await plugin.Notice_join(message)
             except Exception as e:
-                curr_time = datetime.datetime.now()
-                time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-                event_Time = "[" + time_str + "]"
-                print(event_Time + f"[错误][插件][执行][事件][进群][{plugin_name}] Error: {str(e)}")
+                logger.error(f"[插件][执行][事件][进群][{plugin_name}] Error: {str(e)}")
         else:
             curr_time = datetime.datetime.now()
             time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
             event_Time = "[" + time_str + "]"
-            #print(event_Time + f"[警告][插件][跳过][事件][进群][{plugin_name}] 插件缺少 'Notice_join' 方法，跳过执行。")
+            # print(event_Time + f"[警告][插件][跳过][事件][进群][{plugin_name}] 插件缺少 'Notice_join' 方法，跳过执行。")
 
 
 async def Plugins_Notice_leave(message, plugins):
@@ -128,12 +119,9 @@ async def Plugins_Notice_leave(message, plugins):
             try:
                 await plugin.Notice_leave(message)
             except Exception as e:
-                curr_time = datetime.datetime.now()
-                time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-                event_Time = "[" + time_str + "]"
-                print(event_Time + f"[错误][插件][执行][事件][退群][{plugin_name}] Error: {str(e)}")
+                logger.error(f"[插件][执行][事件][退群][{plugin_name}] Error: {str(e)}")
         else:
             curr_time = datetime.datetime.now()
             time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
             event_Time = "[" + time_str + "]"
-            #print(event_Time + f"[警告][插件][跳过][事件][退群][{plugin_name}] 插件缺少 'Notice_leave' 方法，跳过执行。")
+            # print(event_Time + f"[警告][插件][跳过][事件][退群][{plugin_name}] 插件缺少 'Notice_leave' 方法，跳过执行。")
