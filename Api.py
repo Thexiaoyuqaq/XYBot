@@ -183,7 +183,6 @@ async def send_Groupmessage(event_message_Group_ID: str, event_message_Message_I
                 print("[" + str(time_str) + "][INFO][Message][Send][Group] {} --To {}({})   ({})".format(event_message_Message, event_message_Group_Name, event_message_Group_ID, rsjson["data"]["message_id"]))
                 return rsjson
             else:
-                print("[" + str(time_str) + "][INFO][Message][Send][Group] {} --To {}".format(event_message_Message, event_message_Group_ID))
                 return "Error: 无法发送"
 
 async def set_GroupRequest(flag: str, type: str) -> dict:

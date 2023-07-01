@@ -3,8 +3,8 @@ import websockets
 import json
 from Api import *
 from Plugin_Api import *
+from Plugin_Manager import load_plugins
 from Log import *
-import datetime
 from config import load_config
 from config import get_config
 from pyppeteer import launch

@@ -10,6 +10,7 @@ def create_default_config(file_path: str):
     """
     config = configparser.ConfigParser()
     config['main'] = {
+        'Debug': False,
         'master_qq': '123456'
     }
     config['gocq'] = {
