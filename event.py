@@ -34,12 +34,12 @@ async def groupMessageEvent(original_message):
     """
     群聊消息事件
     """
-    await handle_event(event="groupMessageEvent", original_message=original_message)
+    asyncio.create_task(handle_event(event="groupMessageEvent", original_message=original_message))
 
 
 async def tempMessageEvent(original_message):
     """
     临时消息事件
     """
-    await handle_event(event="tempMessageEvent", original_message=original_message)
+    asyncio.create_task(handle_event(event="tempMessageEvent", original_message=original_message))
 
