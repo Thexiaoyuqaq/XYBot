@@ -8,6 +8,7 @@
 import os
 from LogSys import Log
 import inspect
+from config import get_config
 
 FILE_NAME = "Plugin_Manager"
 logger = Log()
@@ -25,8 +26,9 @@ def load_plugins():
         os.mkdir(plugin_path)
     logger.info(message="正在获取插件列表...", flag=FILE_NAME)
     pluginList = os.listdir("plugins")
-    pluginList.pop(pluginList.index("__pycache__"))
-    logger.debug(message="插件列表：" + str(pluginList), flag=FILE_NAME)
+    #pluginList.pop(pluginList.index("__pycache__"))
+    if get_config('main', 'Debug') == True :
+        logger.debug(message="插件列表：" + str(pluginList), flag=FILE_NAME)
 
     logger.info(message="正在加载插件", flag=FILE_NAME)
     for plugin in pluginList:

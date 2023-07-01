@@ -1,43 +1,7 @@
 import datetime
-import importlib
-import os
 from LogSys import Log
 
 logger = Log()
-
-
-def load_plugins():
-    """
-    加载插件目录中的插件文件并创建插件对象
-
-    Returns:
-        list: 插件对象列表
-    """
-    plugins = []
-    plugin_dir = "plugins"  # 插件目录路径
-    logger.info(message=f"[系统] 正在加载插件")
-
-    # 遍历插件目录中的文件
-    for plugin_file in os.listdir(plugin_dir):
-        if plugin_file.endswith(".py"):
-            plugin_path = os.path.join(plugin_dir, plugin_file)
-            module_name = os.path.splitext(plugin_file)[0]
-            try:
-                spec = importlib.util.spec_from_file_location(module_name, plugin_path)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                if hasattr(module, "Plugin") and callable(getattr(module, "Plugin")):
-                    plugins.append((module_name, getattr(module, "Plugin")()))
-                    logger.info(f"[插件][加载][{module_name}] 插件已加载")
-                else:
-                    logger.warning(f"[插件][跳过][{module_name}] Error: 插件缺少主要类'Plugin',跳过加载")
-            except Exception as e:
-                logger.error(f"[插件][加载][{module_name}] Error: {str(e)}")
-    logger.info(f"[插件][系统] 全部插件已加载完毕")
-    logger.info(f"[系统] 正在等待Go-CQHTTP协议握手")
-
-    return plugins
-
 
 async def Plugins_Group_Message(message, plugins):
     """
