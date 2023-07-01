@@ -15,6 +15,9 @@ logger = Log()
 
 
 def load_plugins():
+    """
+    加载插件目录中所有插件，并返回插件对象列表
+    """
     loadedPlugins = []
     plugin_path = 'plugins'
     logger.info(message="正在检查插件目录 ...", flag=FILE_NAME)
