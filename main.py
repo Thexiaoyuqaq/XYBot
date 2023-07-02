@@ -79,7 +79,7 @@ async def start_server() -> None:
         logger.info(message="[WS] 成功与Go-CQHTTP建立链接", flag="Main")
         asyncio.create_task(Plugins_Start(plugins))
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor():
             while True:
                 message = await websocket.recv()
                 asyncio.create_task(handle_message(message))

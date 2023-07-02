@@ -3,6 +3,7 @@ from LogSys import Log
 
 logger = Log()
 
+
 async def Plugins_Group_Message(message, plugins):
     """
     处理群消息的逻辑
@@ -17,10 +18,12 @@ async def Plugins_Group_Message(message, plugins):
             try:
                 await plugin.GroupMessage(message)
             except Exception as e:
-                logger.error(f"[插件] Error: {str(e)}",flag=plugin_name)
+                logger.error(f"[插件] Error: {str(e)}", flag=plugin_name)
         else:
             pass
             # print(event_Time + f"[警告][插件][跳过][消息][{plugin_name}] 插件缺少 'GroupMessage' 方法，跳过执行。")
+
+
 async def Plugins_Friend_Message(message, plugins):
     """
     处理群消息的逻辑
@@ -35,10 +38,11 @@ async def Plugins_Friend_Message(message, plugins):
             try:
                 await plugin.FriendMessage(message)
             except Exception as e:
-                logger.error(f"Error: {str(e)}",flag=plugin_name)
+                logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
             pass
             # print(event_Time + f"[警告][插件][跳过][消息][{plugin_name}] 插件缺少 'FriendMessage' 方法，跳过执行。")
+
 
 async def Plugins_Request(message, plugins):
     """
@@ -54,7 +58,7 @@ async def Plugins_Request(message, plugins):
             try:
                 await plugin.Request(message)
             except Exception as e:
-                logger.error(f"Error: {str(e)}",flag=plugin_name)
+                logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
             pass
             # print(event_Time + f"[警告][插件][跳过][事件][请求][{plugin_name}] 插件缺少 'Request' 方法，跳过执行。")
@@ -74,7 +78,7 @@ async def Plugins_Notice_join(message, plugins):
             try:
                 await plugin.Notice_join(message)
             except Exception as e:
-                logger.error(f"Error: {str(e)}",flag=plugin_name)
+                logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
             pass
             # print(event_Time + f"[警告][插件][跳过][事件][进群][{plugin_name}] 插件缺少 'Notice_join' 方法，跳过执行。")
@@ -94,10 +98,12 @@ async def Plugins_Notice_leave(message, plugins):
             try:
                 await plugin.Notice_leave(message)
             except Exception as e:
-                logger.error(f"Error: {str(e)}",flag=plugin_name)
+                logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
             pass
             # print(event_Time + f"[警告][插件][跳过][事件][退群][{plugin_name}] 插件缺少 'Notice_leave' 方法，跳过执行。")
+
+
 async def Plugins_Start(plugins):
     """
     处理插件启动事件的逻辑
@@ -111,10 +117,12 @@ async def Plugins_Start(plugins):
             try:
                 await plugin.Start()
             except Exception as e:
-                logger.error(f"Error: {str(e)}",flag=plugin_name)
+                logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
             pass
             # print(event_Time + f"[警告][插件][跳过][事件][启动][{plugin_name}] 插件缺少 'Start' 方法，跳过执行。")
+
+
 async def Plugins_Stop(plugins):
     """
     处理插件卸载事件的逻辑
@@ -128,7 +136,7 @@ async def Plugins_Stop(plugins):
             try:
                 await plugin.Start()
             except Exception as e:
-                logger.error(f"Error: {str(e)}",flag=plugin_name)
+                logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
             pass
             # print(event_Time + f"[警告][插件][跳过][事件][关闭][{plugin_name}] 插件缺少 'Stop' 方法，跳过执行。")

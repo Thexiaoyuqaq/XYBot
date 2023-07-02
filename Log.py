@@ -36,7 +36,7 @@ async def cmd_Log(event_Post_Type, event_original):
             group_info = await get_group_info(event_original["group_id"])
             group_name = group_info["data"]["group_name"]
 
-            logger.info(message=f"[消息][群聊] {group_name}({event_original['group_id']}) [{message_info['sender']['role']}]{message_info['sender']['nickname']}({message_info['user_id']}): {message_info['message']} ({message_info['message_id']})", flag="Log")
+            logger.info(message=f"[消息][群聊] {group_name}({event_original['group_id']}) [{message_info['sender']['role']}] {message_info['sender']['nickname']}({message_info['user_id']}): {message_info['message']} ({message_info['message_id']})", flag="Log")
 
         if event_Message_From == "private":
             message_info = {
@@ -48,4 +48,4 @@ async def cmd_Log(event_Post_Type, event_original):
                 "message": event_original["message"]
             }
 
-            logger.info(message=f"[消息][好友] {message_info['sender']['nickname']}({message_info['user_id']}): {message_info['message']}", flag="Log")
+            logger.info(message=f"[消息][好友] {message_info['sender']['nickname']}({message_info['user_id']})：{message_info['message']}", flag="Log")
