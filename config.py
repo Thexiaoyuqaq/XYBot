@@ -1,5 +1,6 @@
 import configparser
-import datetime
+from LogSys import Log
+logger = Log()
 
 def create_default_config(file_path: str):
     """
@@ -31,21 +32,18 @@ def load_config(file_path: str) -> configparser.ConfigParser:
     Returns:
         configparser.ConfigParser: 解析后的配置对象。
     """
-    curr_time = datetime.datetime.now()
-    time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-    event_Time = "[" + time_str + "]"
     config = configparser.ConfigParser()
     
     try:
         with open(file_path) as config_file:
             config.read_file(config_file)
     except FileNotFoundError:
-        print(event_Time + "[INFO][System][Config] 未找到配置文件。正在创建默认配置文件。")
+        logger.info(message="未找到主配置文件。正在创建默认配置文件",flag="Config")
         create_default_config(file_path)
         with open(file_path) as config_file:
             config.read_file(config_file)
     except configparser.MissingSectionHeaderError as e:
-        print(event_Time + f"[ERROR][System][Config] 加载配置文件失败：{str(e)}")
+        logger.error(message="无法载入主配置文件,Error: " + str(e),flag="Config")
         return None
 
     return config
@@ -68,6 +66,6 @@ def get_config(section: str, option: str) -> str:
             value = config.get(section, option)
             return value
         except configparser.Error as e:
-            print(f"配置文件解析错误：{str(e)}")
+            logger.error(message="主配置文件解析错误,Error: " + str(e),flag="Config")
     
     return None
