@@ -2,13 +2,15 @@ import datetime
 import re
 import aiohttp
 from config import get_config
+from LogSys import Log
 
 host = get_config('gocq', 'host')
 http_port = get_config('gocq', 'http_port')
+logger = Log()
 
 def extract_id(text: str) -> str:
     """
-    从文本中提取ID。
+    从文本中提取消息ID。
     
     Args:
         text (str): 文本字符串。
@@ -65,165 +67,170 @@ def cn_u(text: str) -> str:
     """
     return(text.encode('unicode_escape').decode())
 
-async def get_group_info(event_message_Group_ID: str) -> dict:
+async def get_group_info(Group_ID: int) -> dict:
     """
     获取群信息的 API。
     
     Args:
-        event_message_Group_ID (str): 群组 ID。
+        Group_ID (int): 群组 ID。
     
     Returns:
         dict: 群信息的 JSON 数据。
     """
-    url = f"http://{host}:{http_port}/get_group_info?group_id={event_message_Group_ID}&no_cache=true" 
+    url = f"http://{host}:{http_port}/get_group_info?group_id={Group_ID}&no_cache=true" 
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             rsjson = await response.json()
             return rsjson
 
-async def set_group_card(event_message_Group_ID: str, card: str, user_id: str) -> dict:
+async def set_group_card(Group_ID: int, card: str, user_id: int) -> dict:
     """
     设置群员名片的 API。
     
     Args:
-        event_message_Group_ID (str): 群组 ID。
+        Group_ID (int): 群组 ID。
         card (str): 群员名片。
-        user_id (str): 群员 QQ 号。
+        user_id (int): 群员 QQ 号。
     
     Returns:
         dict: 设置结果的 JSON 数据。
     """
-    url = f"http://{host}:{http_port}/set_group_card?group_id={event_message_Group_ID}&user_id={user_id}&card={card}"
+    url = f"http://{host}:{http_port}/set_group_card?group_id={Group_ID}&user_id={user_id}&card={card}"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             rsjson = await response.json()
             return rsjson
 
-async def set_group_ban(event_message_Group_ID: str, user_id: str, time: int) -> dict:
+async def set_group_ban(Group_ID: int, user_id: int, time: int) -> dict:
     """
     设置群员禁言的 API。
     
     Args:
-        event_message_Group_ID (str): 群组 ID。
-        user_id (str): 群员 QQ 号。
+        Group_ID (int): 群组 ID。
+        user_id (int): 群员 QQ 号。
         time (int): 禁言时间（单位：秒）。
     
     Returns:
         dict: 设置结果的 JSON 数据。
     """
     if user_id != 3443135327:
-        url = f"http://{host}:{http_port}/set_group_ban?group_id={event_message_Group_ID}&user_id={user_id}&duration={time}"
+        url = f"http://{host}:{http_port}/set_group_ban?group_id={Group_ID}&user_id={user_id}&duration={time}"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 rsjson = await response.json()
                 return rsjson
 
-async def get_group_member_info(event_message_Group_ID: str, userid: str) -> dict:
+async def get_group_member_info(Group_ID: int, user_id: str) -> dict:
     """
     获取群成员信息的 API。
     
     Args:
-        event_message_Group_ID (str): 群组 ID。
-        userid (str): 群员 QQ 号。
+        Group_ID (int): 群组 ID。
+        userid (int): 群员 QQ 号。
     
     Returns:
         dict: 群成员信息的 JSON 数据。
     """
-    url = f"http://{host}:{http_port}/get_group_member_info?group_id={event_message_Group_ID}&user_id={userid}&no_cache=true"
+    url = f"http://{host}:{http_port}/get_group_member_info?group_id={Group_ID}&user_id={user_id}&no_cache=true"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             rsjson = await response.json()
             return rsjson
 
-async def send_group_forward_msg(event_message_Group_ID: str, event_message_Message: str) -> dict:
-    """
-    发送合并消息的 API。
-    
-    Args:
-        event_message_Group_ID (str): 群组 ID。
-        event_message_Message (str): 消息内容。
-    
-    Returns:
-        dict: 发送结果的 JSON 数据。
-    """
-    url = f"http://{host}:{http_port}/send_group_forward_msg?group_id={event_message_Group_ID}&messages={event_message_Message}&no_cache=true"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            rsjson = await response.json()
-            return rsjson
 
-async def send_Groupmessage(event_message_Group_ID: str, event_message_Message_ID: str, event_message_Message: str, awa: bool) -> dict:
+async def send_Groupmessage(Group_ID: int, Message_ID: int, Message: str, awa: bool) -> dict:
     """
     发送群消息的 API。
     
     Args:
-        event_message_Group_ID (str): 群组 ID。
-        event_message_Message_ID (str): 消息 ID。
-        event_message_Message (str): 消息内容。
-        awa (bool): 是否自动回复。
+        Group_ID (int): 群组 ID。
+        Message_ID (int): 消息 ID。
+        Message (str): 消息内容。
+        awa (bool): 是否回复。
     
     Returns:
         dict: 发送结果的 JSON 数据。
     """
     if awa:
-        url = f"http://{host}:{http_port}/send_group_msg?group_id={event_message_Group_ID}&message=[CQ:reply,id=" + str(event_message_Message_ID) + "]" + event_message_Message
+        url = f"http://{host}:{http_port}/send_group_msg?group_id={Group_ID}&message=[CQ:reply,id=" + str(Message_ID) + "]" + Message
     else:
-        url = f"http://{host}:{http_port}/send_group_msg?group_id={event_message_Group_ID}&message={event_message_Message}"
+        url = f"http://{host}:{http_port}/send_group_msg?group_id={Group_ID}&message={Message}"
     
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             rsjson = await response.json()
             event_send_message = rsjson["message"]
-            curr_time = datetime.datetime.now()
-            time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
-            
             if event_send_message != -1:
-                event_message_Group_Name = await get_group_info(event_message_Group_ID)
-                event_message_Group_Name = event_message_Group_Name["data"]["group_name"]
-                print("[" + str(time_str) + "][INFO][Message][Send][Group] {} --To {}({})   ({})".format(event_message_Message, event_message_Group_Name, event_message_Group_ID, rsjson["data"]["message_id"]))
+                Group_Name = await get_group_info(Group_ID)
+                Group_Name = Group_Name["data"]["group_name"]
+                message_id = rsjson["data"]["message_id"]
+                logger.info(message=f"[消息][群聊] {Message} --To {Group_Name}({Group_ID}) ({message_id})", flag="Api")
                 return rsjson
             else:
+                Group_Name = await get_group_info(Group_ID)
+                Group_Name = Group_Name["data"]["group_name"]
+                logger.warning(message=f"[消息][群聊] {Message} --To {Group_Name}({Group_ID})  --无法发送", flag="Api")
                 return "Error: 无法发送"
-
-async def set_GroupRequest(flag: str, type: str) -> dict:
+async def send_FriendMessage(user_id: int, message: str) -> dict:
+    """
+    发送好友消息的 API。
+    
+    Args:
+        user_id (int): QQ号。
+        message (str): 消息内容。
+    
+    Returns:
+        dict: 发送结果的 JSON 数据。
+    """
+    url = f"http://{host}:{http_port}/send_private_msg?user_id={user_id}&message={message}"
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            rsjson = await response.json()
+            message_id = rsjson["data"]["message_id"]
+            logger.info(message=f"[消息][好友] {message} --To {user_id} ({message_id})", flag="Api")
+            return rsjson
+            
+async def set_GroupRequest(flag: int,operate: bool) -> dict:
     """
     同意加群操作的 API。
     
     Args:
         flag (str): 请求标识。
-        type (str): 请求类型。
+        operate (bool): 操作。
     
     Returns:
         dict: 操作结果的 JSON 数据。
     """
-    url = f"http://{host}:{http_port}/set_group_add_request?approve=true&type={type}&flag={flag}"
+    url = f"http://{host}:{http_port}/set_group_add_request?approve=true&type={operate}&flag={flag}"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             rsjson = await response.json()
             return rsjson
 
-async def set_FreindRequest(flag: str) -> dict:
+async def set_FreindRequest(flag: int,operate: bool) -> dict:
     """
     同意好友操作的 API。
     
     Args:
         flag (str): 请求标识。
+        operate (bool): 操作。
     
     Returns:
         dict: 操作结果的 JSON 数据。
     """
-    url = f"http://{host}:{http_port}/set_friend_add_request?approve=true&flag={flag}"
+    url = f"http://{host}:{http_port}/set_friend_add_request?approve={operate}&flag={flag}"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             rsjson = await response.json()
             return rsjson
 
-async def delete_msg(message_id: str) -> dict:
+async def delete_msg(message_id: int) -> dict:
     """
     撤回消息的 API。
     
     Args:
-        message_id (str): 消息 ID。
+        message_id (int): 消息 ID。
     
     Returns:
         dict: 操作结果的 JSON 数据。
