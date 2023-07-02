@@ -69,6 +69,7 @@ async def start_server() -> None:
     ws_port = get_config('gocq', 'ws_port')
     async with websockets.connect('ws://{}:{}'.format(host, ws_port)) as websocket:
         logger.info(message=f"[系统][WS] Go-CQHTTP协议握手成功")
+        asyncio.create_task(Plugins_Start(plugins))
         # 使用多线程处理消息
         with concurrent.futures.ThreadPoolExecutor() as executor:
             while True:
@@ -83,4 +84,5 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(message="asyncio.run 出错：" + str(e))
     except KeyboardInterrupt as e:
+        asyncio.create_task(Plugins_Stop(plugins))
         pass

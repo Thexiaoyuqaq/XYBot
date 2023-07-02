@@ -89,3 +89,41 @@ async def Plugins_Notice_leave(message, plugins):
             time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
             event_Time = "[" + time_str + "]"
             # print(event_Time + f"[警告][插件][跳过][事件][退群][{plugin_name}] 插件缺少 'Notice_leave' 方法，跳过执行。")
+async def Plugins_Start(plugins):
+    """
+    处理插件启动事件的逻辑
+
+    Args:
+        plugins (list): 插件对象列表
+
+    """
+    for plugin_name, plugin in plugins:
+        if hasattr(plugin, "Start") and callable(getattr(plugin, "Start")):
+            try:
+                await plugin.Start()
+            except Exception as e:
+                logger.error(f"[插件][执行][事件][启动][{plugin_name}] Error: {str(e)}")
+        else:
+            curr_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
+            event_Time = "[" + time_str + "]"
+            # print(event_Time + f"[警告][插件][跳过][事件][启动][{plugin_name}] 插件缺少 'Start' 方法，跳过执行。")
+async def Plugins_Stop(plugins):
+    """
+    处理插件卸载事件的逻辑
+
+    Args:
+        plugins (list): 插件对象列表
+
+    """
+    for plugin_name, plugin in plugins:
+        if hasattr(plugin, "Stop") and callable(getattr(plugin, "Stop")):
+            try:
+                await plugin.Start()
+            except Exception as e:
+                logger.error(f"[插件][执行][事件][关闭][{plugin_name}] Error: {str(e)}")
+        else:
+            curr_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(curr_time, '%H:%M:%S')
+            event_Time = "[" + time_str + "]"
+            # print(event_Time + f"[警告][插件][跳过][事件][关闭][{plugin_name}] 插件缺少 'Stop' 方法，跳过执行。")
