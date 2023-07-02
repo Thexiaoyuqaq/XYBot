@@ -30,7 +30,7 @@ def load_plugins():
     logger.info(message="正在获取插件列表...", flag=FILE_NAME)
     pluginList = os.listdir("plugins")
 
-    if get_config('main', 'Debug') == True:
+    if get_config('main', 'Debug'):
         logger.debug(message="插件列表：" + str(pluginList), flag=FILE_NAME)
 
     logger.info(message="正在加载插件", flag=FILE_NAME)

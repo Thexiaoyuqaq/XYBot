@@ -1,6 +1,8 @@
 import configparser
 from LogSys import Log
+
 logger = Log()
+
 
 def create_default_config(file_path: str):
     """
@@ -22,7 +24,8 @@ def create_default_config(file_path: str):
     with open(file_path, 'w') as config_file:
         config.write(config_file)
 
-def load_config(file_path: str) -> configparser.ConfigParser:
+
+def load_config(file_path: str) -> None:
     """
     加载配置文件。
     
@@ -33,20 +36,21 @@ def load_config(file_path: str) -> configparser.ConfigParser:
         configparser.ConfigParser: 解析后的配置对象。
     """
     config = configparser.ConfigParser()
-    
+
     try:
         with open(file_path) as config_file:
             config.read_file(config_file)
     except FileNotFoundError:
-        logger.info(message="未找到主配置文件。正在创建默认配置文件",flag="Config")
+        logger.info(message="未找到主配置文件。正在创建默认配置文件", flag="Config")
         create_default_config(file_path)
         with open(file_path) as config_file:
             config.read_file(config_file)
     except configparser.MissingSectionHeaderError as e:
-        logger.error(message="无法载入主配置文件,Error: " + str(e),flag="Config")
+        logger.error(message="无法载入主配置文件,Error: " + str(e), flag="Config")
         return None
 
     return config
+
 
 def get_config(section: str, option: str) -> str:
     """
@@ -60,12 +64,10 @@ def get_config(section: str, option: str) -> str:
         str: 配置文件中指定选项的值。
     """
     config = load_config('config.ini')
-    
+
     if config is not None:
         try:
             value = config.get(section, option)
             return value
         except configparser.Error as e:
-            logger.error(message="主配置文件解析错误,Error: " + str(e),flag="Config")
-    
-    return None
+            logger.error(message="主配置文件解析错误,Error: " + str(e), flag="Config")
