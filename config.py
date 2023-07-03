@@ -1,16 +1,23 @@
 import configparser
+import os
+
 from LogSys import Log
 
 logger = Log()
 
 
-def create_default_config(file_path: str):
+def create_default_config(file_path = "config/main.ini"):
     """
     创建默认配置文件。
     
     Args:
         file_path (str): 配置文件路径。
     """
+    if not os.path.isfile(file_path):
+        # Configuration file does not exist, create a default configuration file
+        folder = os.path.exists("config")
+        if not folder:
+            os.makedirs("config")
     config = configparser.ConfigParser()
     config['main'] = {
         'Debug': False,
@@ -25,7 +32,7 @@ def create_default_config(file_path: str):
         config.write(config_file)
 
 
-def load_config(file_path: str) -> None:
+def load_config(file_path = "config/main.ini") -> None:
     """
     加载配置文件。
     
@@ -63,7 +70,7 @@ def get_config(section: str, option: str) -> str:
     Returns:
         str: 配置文件中指定选项的值。
     """
-    config = load_config('config.ini')
+    config = load_config()
 
     if config is not None:
         try:
