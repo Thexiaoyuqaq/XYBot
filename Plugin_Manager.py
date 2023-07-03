@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-# @FileName :Plugin_Manager.py
-# @Time     : 3:48
-# @Author   :Endermite
-
 import os
 from LogSys import Log
 import inspect

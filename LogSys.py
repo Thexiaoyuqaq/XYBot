@@ -1,10 +1,3 @@
-# -*- coding:utf-8 -*-
-# @FileName :LogSys.py
-# @Time     : 0:40
-# @Author   :Endermite
-
-# 一个简易的日志系统，未来可能用到
-
 import sys
 import datetime
 from config import get_config

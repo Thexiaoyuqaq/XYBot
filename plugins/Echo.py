@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-# @FileName :Echo.py
-# @Time     : 4:50
-# @Author   :Endermite
-
 from Api import send_Groupmessage
 from Api import send_FriendMessage
 

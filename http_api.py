@@ -1,7 +1,3 @@
-# -*- coding:utf-8 -*-
-# @FileName :http_api.py
-# @Time     : 7:10
-# @Author   :Endermite
 import requests
 import urllib.parse
 # 自己改
