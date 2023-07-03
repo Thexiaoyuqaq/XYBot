@@ -1,76 +1,12 @@
-import html
 import json
-import re
 import aiohttp
+
 from config import get_config
 from LogSys import Log
 
 host = get_config('gocq', 'host')
 http_port = get_config('gocq', 'http_port')
 logger = Log()
-
-
-def extract_id(text: str) -> int:
-    """
-    从文本中提取消息ID。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: 提取到的ID。
-    """
-    match_object = re.search(r"\[CQ:reply,id=(-?\d+)", text)
-    if match_object:
-        reply_id = match_object.group(1)
-        return(reply_id)
-    else:
-        return None
-
-def get_ban_time(text: str) -> str:
-    """
-    从文本中获取禁言时间。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: 禁言时间。
-    """
-    result = re.search(r'\b(\d+)\b$', text)
-    if result:
-        number = result.group(1)
-        return number
-
-
-def get_ban_id(text: str) -> str:
-    """
-    从文本中获取禁言的 QQ 号。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: QQ 号。
-    """
-    result = re.search(r'qq=(\d+)', text)
-    if result:
-        qq_number = result.group(1)
-        return qq_number
-
-
-def cn_u(text: str) -> str:
-    """
-    将文本转换为 Unicode 编码。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: Unicode 编码后的字符串。
-    """
-    return text.encode('unicode_escape').decode()
-
 
 async def get_group_info(Group_ID: int) -> dict:
     """
@@ -184,9 +120,6 @@ async def send_Groupmessage(Group_ID: int, Message_ID: int, Message: str, awa: b
             except json.JSONDecodeError:
                 logger.error(message="Invalid JSON response", flag="Api")
                 return "Error: 无效的 JSON 响应"
-
-
-import aiohttp
 
 async def send_FriendMessage(user_id: int, message: str) -> dict:
     """
