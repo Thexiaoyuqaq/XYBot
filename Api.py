@@ -8,6 +8,7 @@ host = get_config('gocq', 'host')
 http_port = get_config('gocq', 'http_port')
 logger = Log()
 
+
 async def get_group_info(Group_ID: int) -> dict:
     """
     获取群信息的 API。
@@ -121,6 +122,7 @@ async def send_Groupmessage(Group_ID: int, Message_ID: int, Message: str, awa: b
                 logger.error(message="Invalid JSON response", flag="Api")
                 return "Error: 无效的 JSON 响应"
 
+
 async def send_FriendMessage(user_id: int, message: str) -> dict:
     """
     发送好友消息的 API。
@@ -150,7 +152,6 @@ async def send_FriendMessage(user_id: int, message: str) -> dict:
                 return {"error": "Invalid JSON response"}
 
 
-
 async def set_GroupRequest(flag: int, operate: bool) -> dict:
     """
     同意加群操作的 API。
@@ -169,6 +170,7 @@ async def set_GroupRequest(flag: int, operate: bool) -> dict:
             return Requests
 
 
+# What is Freind, Isn't that a Friend?
 async def set_FreindRequest(flag: int, operate: bool) -> dict:
     """
     同意好友操作的 API。

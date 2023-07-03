@@ -1,12 +1,13 @@
 import configparser
 import os
+from configparser import ConfigParser
 
 from LogSys import Log
 
 logger = Log()
 
 
-def create_default_config(file_path = "config/main.ini"):
+def create_default_config(file_path: str = "config/main.ini") -> None:
     """
     创建默认配置文件。
     
@@ -20,7 +21,7 @@ def create_default_config(file_path = "config/main.ini"):
             os.makedirs("config")
     config = configparser.ConfigParser()
     config['main'] = {
-        'Debug': False,
+        'Debug': True,
         'master_qq': '123456'
     }
     config['gocq'] = {
@@ -32,7 +33,7 @@ def create_default_config(file_path = "config/main.ini"):
         config.write(config_file)
 
 
-def load_config(file_path = "config/main.ini") -> None:
+def load_config(file_path: str = "config/main.ini") -> ConfigParser | None:
     """
     加载配置文件。
     

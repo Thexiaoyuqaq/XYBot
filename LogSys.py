@@ -1,18 +1,15 @@
-# -*- coding:utf-8 -*-
-# @FileName :LogSys.py
-# @Time     : 0:40
-# @Author   :Endermite
-
-# 一个简易的日志系统，未来可能用到
-
 import sys
 import datetime
+from config import get_config
+
+Debug = get_config('main', 'Debug')
 
 
 class Log:
     """
     简陋的日志发送
     """
+
     def __init__(self):
         if sys.platform.lower().startswith("win"):
             # 适配windows终端彩色字体，其他系统暂不支持
@@ -90,8 +87,9 @@ class Log:
         :param flag: 标记（可选）
         :return: None
         """
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        timestamp = self.color_text(timestamp, 'green')
-        log_type = self.color_text('调试', 'cyan')
-        flag = self.color_text(flag, 'cyan')
-        print(f"{timestamp} [{log_type}] {flag}| {message}")
+        if Debug:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = self.color_text(timestamp, 'green')
+            log_type = self.color_text('调试', 'cyan')
+            flag = self.color_text(flag, 'cyan')
+            print(f"{timestamp} [{log_type}] {flag}| {message}")
