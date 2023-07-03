@@ -74,9 +74,9 @@ async def Plugins_Notice_join(message, plugins):
 
     """
     for plugin_name, plugin in plugins:
-        if hasattr(plugin, "Notice_Group_join") and callable(getattr(plugin, "Notice_join")):
+        if hasattr(plugin, "Notice_Group_join") and callable(getattr(plugin, "Notice_Group_join")):
             try:
-                await plugin.Notice_join(message)
+                await plugin.Notice_Group_join(message)
             except Exception as e:
                 logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
@@ -94,9 +94,9 @@ async def Plugins_Notice_leave(message, plugins):
 
     """
     for plugin_name, plugin in plugins:
-        if hasattr(plugin, "Notice_Group_leave") and callable(getattr(plugin, "Notice_leave")):
+        if hasattr(plugin, "Notice_Group_leave") and callable(getattr(plugin, "Notice_Group_leave")):
             try:
-                await plugin.Notice_leave(message)
+                await plugin.Notice_Group_leave(message)
             except Exception as e:
                 logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:
@@ -134,7 +134,7 @@ async def Plugins_Stop(plugins):
     for plugin_name, plugin in plugins:
         if hasattr(plugin, "Stop") and callable(getattr(plugin, "Stop")):
             try:
-                await plugin.Start()
+                await plugin.Stop()
             except Exception as e:
                 logger.error(f"Error: {str(e)}", flag=plugin_name)
         else:

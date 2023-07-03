@@ -11,7 +11,7 @@ from pyppeteer import launch
 import concurrent.futures
 
 plugins = load_plugins()
-load_config('config.ini')
+load_config('config/config.ini')
 logger = Log()
 
 
@@ -78,7 +78,6 @@ async def start_server() -> None:
     async with websockets.connect('ws://{}:{}'.format(host, ws_port)) as websocket:
         logger.info(message="[WS] 成功与Go-CQHTTP建立链接", flag="Main")
         asyncio.create_task(Plugins_Start(plugins))
-
         with concurrent.futures.ThreadPoolExecutor():
             while True:
                 message = await websocket.recv()
@@ -87,9 +86,10 @@ async def start_server() -> None:
 
 if __name__ == "__main__":
     try:
+        if get_config("main", "Debug") == "true":
+            logger.warning(message="当前调试模式已开启", flag="Main")
         asyncio.run(main())
     except Exception as e:
         logger.error(message="asyncio.run 出错：" + str(e))
     except KeyboardInterrupt as e:
-        asyncio.create_task(Plugins_Stop(plugins))
-        pass
+        asyncio.run(Plugins_Stop(plugins))

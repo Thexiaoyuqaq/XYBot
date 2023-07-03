@@ -1,73 +1,12 @@
-import re
+import json
 import aiohttp
+
 from config import get_config
 from LogSys import Log
 
 host = get_config('gocq', 'host')
 http_port = get_config('gocq', 'http_port')
 logger = Log()
-
-
-def extract_id(text: str) -> None:
-    """
-    从文本中提取消息ID。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: 提取到的ID。
-    """
-    pattern = r"id=(-?\d+)"
-    match = re.search(pattern, text)
-    if match:
-        return match.group(1)
-
-
-def get_ban_time(text: str) -> str:
-    """
-    从文本中获取禁言时间。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: 禁言时间。
-    """
-    result = re.search(r'\b(\d+)\b$', text)
-    if result:
-        number = result.group(1)
-        return number
-
-
-def get_ban_id(text: str) -> str:
-    """
-    从文本中获取禁言的 QQ 号。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: QQ 号。
-    """
-    result = re.search(r'qq=(\d+)', text)
-    if result:
-        qq_number = result.group(1)
-        return qq_number
-
-
-def cn_u(text: str) -> str:
-    """
-    将文本转换为 Unicode 编码。
-    
-    Args:
-        text (str): 文本字符串。
-    
-    Returns:
-        str: Unicode 编码后的字符串。
-    """
-    return text.encode('unicode_escape').decode()
-
 
 async def get_group_info(Group_ID: int) -> dict:
     """
@@ -156,28 +95,31 @@ async def send_Groupmessage(Group_ID: int, Message_ID: int, Message: str, awa: b
     Returns:
         dict: 发送结果的 JSON 数据。
     """
+    url = f"http://{host}:{http_port}/send_group_msg"
+    payload = {
+        "group_id": Group_ID,
+        "message": Message
+    }
     if awa:
-        url = f"http://{host}:{http_port}/send_group_msg?group_id={Group_ID}&message=[CQ:reply,id=" + str(
-            Message_ID) + "]" + Message
-    else:
-        url = f"http://{host}:{http_port}/send_group_msg?group_id={Group_ID}&message={Message}"
+        payload["message"] = f"[CQ:reply,id={Message_ID}]{Message}"
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            Requests = await response.json()
-            event_send_message = Requests["message"]
-            if event_send_message != -1:
-                Group_Name = await get_group_info(Group_ID)
-                Group_Name = Group_Name["data"]["group_name"]
-                message_id = Requests["data"]["message_id"]
-                logger.info(message=f"[消息][群聊] {Message} --To {Group_Name}({Group_ID}) ({message_id})", flag="Api")
-                return Requests
-            else:
-                Group_Name = await get_group_info(Group_ID)
-                Group_Name = Group_Name["data"]["group_name"]
-                logger.warning(message=f"[消息][群聊] {Message} --To {Group_Name}({Group_ID})  --无法发送", flag="Api")
-                return "Error: 无法发送"
-
+        async with session.post(url, json=payload) as response:
+            try:
+                Requests = await response.json()
+                event_send_message = Requests["message"]
+                if event_send_message != -1:
+                    Group_Name = (await get_group_info(Group_ID))["data"]["group_name"]
+                    message_id = Requests["data"]["message_id"]
+                    logger.info(message=f"[消息][群聊] {Message} --To {Group_Name}({Group_ID}) ({message_id})", flag="Api")
+                    return Requests
+                else:
+                    Group_Name = (await get_group_info(Group_ID))["data"]["group_name"]
+                    logger.warning(message=f"[消息][群聊] {Message} --To {Group_Name}({Group_ID})  --无法发送", flag="Api")
+                    return "Error: 无法发送"
+            except json.JSONDecodeError:
+                logger.error(message="Invalid JSON response", flag="Api")
+                return "Error: 无效的 JSON 响应"
 
 async def send_FriendMessage(user_id: int, message: str) -> dict:
     """
@@ -190,14 +132,23 @@ async def send_FriendMessage(user_id: int, message: str) -> dict:
     Returns:
         dict: 发送结果的 JSON 数据。
     """
-    url = f"http://{host}:{http_port}/send_private_msg?user_id={user_id}&message={message}"
+    url = f"http://{host}:{http_port}/send_private_msg"
+    params = {
+        "user_id": user_id,
+        "message": message
+    }
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            Requests = await response.json()
-            message_id = Requests["data"]["message_id"]
-            logger.info(message=f"[消息][好友] {message} --To {user_id} ({message_id})", flag="Api")
-            return Requests
+        async with session.get(url, params=params) as response:
+            try:
+                Requests = await response.json()
+                message_id = Requests["data"]["message_id"]
+                logger.info(message=f"[消息][好友] {message} --To {user_id} ({message_id})", flag="Api")
+                return Requests
+            except aiohttp.ContentTypeError:
+                logger.error(message="Invalid JSON response", flag="Api")
+                return {"error": "Invalid JSON response"}
+
 
 
 async def set_GroupRequest(flag: int, operate: bool) -> dict:
