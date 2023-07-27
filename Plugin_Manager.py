@@ -10,6 +10,7 @@ from config import *
 
 FILE_NAME = "Plugin_Manager"
 logger = Log()
+config_create()
 config = config_load()
 
 def load_plugins():
