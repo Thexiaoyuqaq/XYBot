@@ -1,12 +1,47 @@
 import json
+import re
 import aiohttp
-
-from config import get_config
+from config import *
 from LogSys import Log
-
-host = get_config('gocq', 'host')
-http_port = get_config('gocq', 'http_port')
 logger = Log()
+
+config_create()
+config = config_load()
+connect_config = connect_config_load()
+
+host = connect_config["gocq"]["cq_host"]
+http_port = connect_config["gocq"]["cq_http_port"]
+
+def extract_id(text: str) -> int:
+    """
+    从回复消息中提取消息id
+    
+    Args:
+        text (str): 消息
+    
+    Returns:
+        str: 提取到的ID。
+    """
+    match_object = re.search(r"\[CQ:reply,id=(-?\d+)", text)
+    if match_object:
+        reply_id = match_object.group(1)
+        return(reply_id)
+    else:
+        return None
+
+
+def cn_u(text: str) -> str:
+    """
+    将文本转换为 Unicode 编码。
+    
+    Args:
+        text (str): 文本字符串。
+    
+    Returns:
+        str: Unicode 编码后的字符串。
+    """
+    return text.encode('unicode_escape').decode()
+
 
 async def get_group_info(Group_ID: int) -> dict:
     """

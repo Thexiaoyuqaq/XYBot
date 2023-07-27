@@ -6,11 +6,11 @@
 import os
 from LogSys import Log
 import inspect
-from config import get_config
+from config import *
 
 FILE_NAME = "Plugin_Manager"
 logger = Log()
-
+config = config_load()
 
 def load_plugins():
     """
@@ -30,7 +30,7 @@ def load_plugins():
     logger.info(message="正在获取插件列表...", flag=FILE_NAME)
     pluginList = os.listdir("plugins")
 
-    if get_config('main', 'Debug'):
+    if config["main"]["Debug"] == "true":
         logger.debug(message="插件列表：" + str(pluginList), flag=FILE_NAME)
 
     logger.info(message="正在加载插件", flag=FILE_NAME)

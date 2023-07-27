@@ -1,18 +1,18 @@
 import asyncio
 import websockets
 import json
-from Api import *
+import concurrent.futures
+from Log import *
 from Plugin_Api import *
 from Plugin_Manager import load_plugins
-from Log import *
-from config import load_config
-from config import get_config
+from config import *
 from pyppeteer import launch
-import concurrent.futures
 
-plugins = load_plugins()
-load_config('config/config.ini')
 logger = Log()
+config_create()
+config = config_load()
+if os.path.exists('config/Bot/connect.ini'):
+    plugins = load_plugins()
 
 
 async def handle_message(event_original: str) -> None:
@@ -60,20 +60,56 @@ async def main() -> None:
         None
     """
     try:
-        await start_server()
+        if not os.path.exists('config/Bot/connect.ini'):
+            print("检测到首次运行,正在创建配置文件")
+            while True:
+                print("对接类型: (回复数字)")
+                print("1.Go-CQHTTP")
+                print("2.DChat")
+                connect_type = input()
+
+                if connect_type == "1":
+                    print("请输入Go-CQHTTP的HTTP接口端口")
+                    cq_http_port = input()
+                    print("请输入Go-CQHTTP的正向WebSocket接口端口")
+                    cq_websocket_port = input()
+                    config = {
+                        "gocq": {
+                            "cq_host": "127.0.0.1",
+                            "cq_http_port": cq_http_port,
+                            "cq_websocket_port": cq_websocket_port
+                        }
+                    }
+                    with open("config/Bot/connect.ini", "w") as config_file:
+                        json.dump(config, config_file)
+                    input("配置已创建请重新运行程序")
+                    break
+                elif connect_type == "2":
+                    print("当前还在开发中,无法使用")
+                else:
+                    print("错误的类型，请重新输入。")
+        else:
+            connect_config = connect_config_load()
+            if "gocq" in connect_config:
+                logger.info(message="当前使用GO-CQHTTP方式连接", flag="Main")
+                await gocq_start_server()
+            elif "dchat" in connect_config:
+                logger.info(message="当前使用DChat方式连接", flag="Main")
+                pass
     except Exception as e:
         logger.error(message="主程序出错：" + str(e))
 
 
-async def start_server() -> None:
+async def gocq_start_server() -> None:
+    connect_config = connect_config_load()
     """
     启动 WebSocket 服务器。
 
     Returns:
         None
     """
-    host = get_config('gocq', 'host')
-    ws_port = get_config('gocq', 'ws_port')
+    host = connect_config["gocq"]["cq_host"]
+    ws_port = connect_config["gocq"]["cq_websocket_port"]
     logger.info(message="[WS] 等待与Go-CQHTTP建立链接", flag="Main")
     async with websockets.connect('ws://{}:{}'.format(host, ws_port)) as websocket:
         logger.info(message="[WS] 成功与Go-CQHTTP建立链接", flag="Main")
@@ -86,7 +122,7 @@ async def start_server() -> None:
 
 if __name__ == "__main__":
     try:
-        if get_config("main", "Debug") == "true":
+        if config["main"]["Debug"] == "true":
             logger.warning(message="当前调试模式已开启", flag="Main")
         asyncio.run(main())
     except Exception as e:

@@ -1,8 +1,8 @@
-from Api import get_group_info
 from LogSys import Log
 
 
 async def cmd_Log(event_Post_Type, event_original):
+    from Api import get_group_info
     """
     处理日志命令的函数。
 
@@ -16,7 +16,7 @@ async def cmd_Log(event_Post_Type, event_original):
     logger = Log()
 
     if event_Post_Type == "notice":
-        logger.info(message="[信息][事件][接收]" + str(event_original))
+        logger.info(message="[事件]" + str(event_original),flag="Log")
 
     if event_Post_Type == "message":
         event_Message_From = event_original["message_type"]
