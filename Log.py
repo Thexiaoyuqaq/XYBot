@@ -1,3 +1,4 @@
+import asyncio
 from LogSys import Log
 
 
@@ -17,7 +18,6 @@ async def cmd_Log(event_Post_Type, event_original):
 
     if event_Post_Type == "notice":
         logger.info(message="[事件]" + str(event_original),flag="Log")
-
     if event_Post_Type == "message":
         event_Message_From = event_original["message_type"]
 
@@ -27,12 +27,17 @@ async def cmd_Log(event_Post_Type, event_original):
                 "user_id": event_original["user_id"],
                 "sender": {
                     "nickname": event_original["sender"]["nickname"],
-                    "role": event_original["sender"]["role"]
                 },
                 "message": event_original["message"],
                 "group_id": event_original["group_id"],
                 "message_id": event_original["message_id"]
             }
+            
+            if event_original["sender"]["card"]:
+                message_info["sender"]["role"] = event_original["sender"]["card"]
+            else:
+                message_info["sender"]["role"] = event_original["sender"]["role"]
+
             group_info = await get_group_info(event_original["group_id"])
             group_name = group_info["data"]["group_name"]
 
@@ -49,3 +54,25 @@ async def cmd_Log(event_Post_Type, event_original):
             }
 
             logger.info(message=f"[消息][好友] {message_info['sender']['nickname']}({message_info['user_id']})：{message_info['message']}", flag="Log")
+    if event_Post_Type == "message2":
+        event_Message_From = event_original["from"]
+
+        if event_Message_From == "group":
+            message_info = {
+                "message_type": "频道",
+                "user_id": event_original["user_id"],
+                "message": event_original["message"],
+                "group_id": event_original["group_id"],
+                "message_id": event_original["message_id"]
+            }
+
+            logger.info(message=f"[消息][频道] 收到来自频道:{event_original['group_id']} 成员:{message_info['user_id']}的消息: {message_info['message']}  ({message_info['message_id']})", flag="Log")
+
+        if event_Message_From == "private":
+            message_info = {
+                "message_type": "好友",
+                "user_id": event_original["user_id"],
+                "message": event_original["message"]
+            }
+
+            logger.info(message=f"[消息][好友] 收到来自好友:{message_info['user_id']}的消息:  {message_info['message']}", flag="Log")
