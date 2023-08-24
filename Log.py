@@ -26,7 +26,7 @@ async def cmd_Log(event_Post_Type, event_original):
                 "message_type": "群聊",
                 "user_id": event_original["user_id"],
                 "sender": {
-                    "nickname": event_original["sender"]["nickname"],
+                    "role": event_original["sender"]["role"],
                 },
                 "message": event_original["message"],
                 "group_id": event_original["group_id"],
@@ -34,9 +34,9 @@ async def cmd_Log(event_Post_Type, event_original):
             }
             
             if event_original["sender"]["card"]:
-                message_info["sender"]["role"] = event_original["sender"]["card"]
+                message_info["sender"]["nickname"] = event_original["sender"]["card"]
             else:
-                message_info["sender"]["role"] = event_original["sender"]["role"]
+                message_info["sender"]["nickname"] = event_original["sender"]["nickname"]
 
             group_info = await get_group_info(event_original["group_id"])
             group_name = group_info["data"]["group_name"]
