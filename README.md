@@ -100,11 +100,11 @@ class Plugin:
 
 你可以通过以下方式为项目做出贡献：
 
-- **提交Bug报告**：如果您发现了任何问题或错误，请[创建一个Bug报告](https://github.com/your_username/your_qq_bot/issues/new?assignees=&labels=bug&template=bug_report.md&title=)来帮助我们改进。
+- **提交Bug报告**：如果您发现了任何问题或错误，请[创建一个Bug报告]([https://github.com/your_username/your_qq_bot/issues/new?assignees=&labels=bug&template=bug_report.md&title=](https://github.com/Thexiaoyuqaq/XYBot/issues/new?assignees=&labels=BUG&projects=&template=bug_report.md&title=%5BBUG%5D+-+%E5%9C%A8%E6%AD%A4%E5%A1%AB%E5%86%99Bug%E7%9A%84%E7%AE%80%E8%A6%81%E6%8F%8F%E8%BF%B0))来帮助我们改进。
 
-- **实现新的功能**：如果您有新功能的想法，欢迎[提交一个功能请求](https://github.com/your_username/your_qq_bot/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=)。我们欢迎社区的贡献。
+- **实现新的功能**：如果您有新功能的想法，欢迎[提交一个功能请求](https://github.com/Thexiaoyuqaq/XYBot/issues/new?assignees=&labels=BUG&projects=&template=bug_report.md&title=%5BBUG%5D+-+%E5%9C%A8%E6%AD%A4%E5%A1%AB%E5%86%99Bug%E7%9A%84%E7%AE%80%E8%A6%81%E6%8F%8F%E8%BF%B0)。我们欢迎社区的贡献。
 
-- **改进文档**：我们的文档可以改进吗？请随时[提出文档改进建议](https://github.com/your_username/your_qq_bot/issues/new?assignees=&labels=documentation&template=docs_request.md&title=)。您的建议将有助于改善用户体验。
+- **改进文档**：我们的文档可以改进吗？请随时[提出文档改进建议](https://github.com/Thexiaoyuqaq/XYBot/edit/main/README.md)。您的建议将有助于改善用户体验。
 
 - **分享这个项目**：如果您喜欢这个项目，不妨在社交媒体上分享它，帮助我们扩大项目的影响力。谢谢您的支持！
 
