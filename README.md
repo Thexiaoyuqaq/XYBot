@@ -1,6 +1,6 @@
 # XYQBOT机器人框架 - Python
 
-![XYQBOT]([https://link_to_your_image.com](http://299mc.cn:13080/tu.png))
+![XYQBOT](http://299mc.cn:13080/tu.png)
 
 ## 简介
 
