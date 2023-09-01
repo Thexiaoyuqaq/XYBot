@@ -26,7 +26,6 @@ XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ�
 
        ```bash
        pip install -r requirements.txt
-   ```
 
 ### 2. 配置 Go-CQHTTP
 
