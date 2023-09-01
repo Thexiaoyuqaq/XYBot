@@ -1,15 +1,13 @@
+import os
+import json
 import asyncio
 import websockets
-import json
 import concurrent.futures
-import threading
 from Log import *
 from utils.Api.Plugin_Api import *
 from utils.Manager.Plugin_Manager import load_plugins
-from utils.Manager.Config_Manager import *
+from utils.Manager.Config_Manager import config_create, config_load, connect_config_load
 from pyppeteer import launch
-from flask import Flask, request, jsonify
-app = Flask(__name__)
 
 logger = Log()
 config_create()
@@ -17,17 +15,7 @@ config = config_load()
 if os.path.exists('config/Bot/connect.ini'):
     plugins = load_plugins()
 
-
 async def handle_message_cq(event_original: str) -> None:
-    """
-    GOCQ-HTTP处理消息的函数。
-
-    Args:
-        event_original (str): 原始消息。
-
-    Returns:
-        None
-    """
     event_original = json.loads(event_original)
     event_PostType = event_original["post_type"]
 
@@ -54,14 +42,7 @@ async def handle_message_cq(event_original: str) -> None:
         if event_Notice_Type == "group_decrease":
             asyncio.create_task(Plugins_Notice_leave(event_original, plugins))
 
-
 async def main() -> None:
-    """
-    主函数。
-
-    Returns:
-        None
-    """
     try:
         if not os.path.exists('config/Bot/connect.ini'):
             print("检测到首次运行,正在创建配置文件")
@@ -88,22 +69,7 @@ async def main() -> None:
                     input("配置已创建请重新运行程序")
                     break
                 elif connect_type == "2":
-                    print("对接DChat会以Webhook方式接收消息,让DChat收到消息后调用你留的Webhook地址来获取消息,也就是说必须处于公网下")
-                    print("Webhook开放的端口")
-                    webhook_port = input()
-                    print("请输入ApiKey")
-                    apikey = input()
-                    config = {
-                        "dchat": {
-                            "dchat_local_flask_host": "0.0.0.0",
-                            "dchat_local_flask_port": int(webhook_port),
-                            "dchat_apikey": apikey
-                        }
-                    }
-                    with open("config/Bot/connect.ini", "w") as config_file:
-                        json.dump(config, config_file)
-                    input("配置已创建请重新运行程序")
-                    break
+                    print("DChat已弃用")
                 else:
                     print("错误的类型，请重新输入。")
         else:
@@ -111,68 +77,13 @@ async def main() -> None:
             if "gocq" in connect_config:
                 logger.info(message="当前使用GO-CQHTTP方式连接", flag="Main")
                 await gocq_start_server()
-            elif "dchat" in connect_config:
-                logger.info(message="当前使用DChat方式连接", flag="Main")
-                await dchat_start_server()
+            else:
+                logger.error(message="未知接入方式",flag="Main")
     except Exception as e:
         logger.error(message="主程序出错：" + str(e))
 
-
-async def dchat_start_server() -> None:
-    connect_config = connect_config_load()
-    """
-    启动 WebSocket 服务器。
-
-    Returns:
-        None
-    """
-    flask_host = connect_config["dchat"]["dchat_local_flask_host"]
-    flask_port = connect_config["dchat"]["dchat_local_flask_port"]
-    asyncio.create_task(Plugins_Start(plugins))
-    logger.info(message="[Webhook] 开放在{}:{}/webhook".format(flask_host,int(flask_port)), flag="Main")
-    app.run(host=flask_host, port=int(flask_port))
-    
-async def handle_message_dc(data):
-    From_type = data["target"]
-    if "gid" in From_type:
-        new_json = {
-            "from" : "group",
-            "message": data["detail"]["content"],
-            "message_id": data["mid"],
-            "user_id": data["from_uid"],
-            "group_id": data["target"]["gid"]
-        }
-    if "uid" in From_type:
-        new_json = {
-            "from" : "private",
-            "message": data["detail"]["content"],
-            "message_id": data["mid"],
-            "user_id": data["from_uid"],
-        }
-    event_Message_From = new_json["from"]
-    asyncio.create_task(cmd_Log("message2", new_json))
-    if event_Message_From == "group":
-        asyncio.create_task(Plugins_Group_Message(new_json, plugins))
-    elif event_Message_From == "private":
-        asyncio.create_task(Plugins_Friend_Message(new_json, plugins))
-
-@app.route('/webhook', methods=['POST','GET'])
-def webhook():
-    data = request.json
-    with concurrent.futures.ThreadPoolExecutor():
-        threading.Thread(target=handle_message_dc,args=(data,))
-        asyncio.run(handle_message_dc(data))
-    return jsonify(data)
-
-
 async def gocq_start_server() -> None:
     connect_config = connect_config_load()
-    """
-    启动 WebSocket 服务器。
-
-    Returns:
-        None
-    """
     host = connect_config["gocq"]["cq_host"]
     ws_port = connect_config["gocq"]["cq_websocket_port"]
     logger.info(message="[WS] 等待与Go-CQHTTP建立链接", flag="Main")
@@ -184,13 +95,13 @@ async def gocq_start_server() -> None:
                 message = await websocket.recv()
                 asyncio.create_task(handle_message_cq(message))
 
-
 if __name__ == "__main__":
     try:
         if config["main"]["Debug"] == "true":
             logger.warning(message="当前调试模式已开启", flag="Main")
-        asyncio.run(main())
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
     except Exception as e:
         logger.error(message="asyncio.run 出错：" + str(e))
     except KeyboardInterrupt as e:
-        asyncio.run(Plugins_Stop(plugins))
+        loop.run_until_complete(Plugins_Stop(plugins))
