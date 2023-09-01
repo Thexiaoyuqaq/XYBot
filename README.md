@@ -21,8 +21,6 @@ XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ�
    ```bash
    git clone git@github.com:Thexiaoyuqaq/XYBot.git
    cd XYBot
-   ```
-   
 2.安装项目依赖：
 
    ```bash
