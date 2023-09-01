@@ -1,9 +1,9 @@
 import asyncio
-from LogSys import Log
-
+from utils.Manager.Log_Manager import Log
+from utils.Api.Command_Api import *
 
 async def cmd_Log(event_Post_Type, event_original):
-    from Api import get_group_info
+    
     """
     处理日志命令的函数。
 
@@ -38,7 +38,7 @@ async def cmd_Log(event_Post_Type, event_original):
             else:
                 message_info["sender"]["nickname"] = event_original["sender"]["nickname"]
 
-            group_info = await get_group_info(event_original["group_id"])
+            group_info = await Api.get_group_info(event_original["group_id"])
             group_name = group_info["data"]["group_name"]
 
             logger.info(message=f"[消息][群聊] {group_name}({event_original['group_id']}) [{message_info['sender']['role']}] {message_info['sender']['nickname']}({message_info['user_id']}): {message_info['message']} ({message_info['message_id']})", flag="Log")
@@ -54,3 +54,25 @@ async def cmd_Log(event_Post_Type, event_original):
             }
 
             logger.info(message=f"[消息][好友] {message_info['sender']['nickname']}({message_info['user_id']})：{message_info['message']}", flag="Log")
+    if event_Post_Type == "message2":
+        event_Message_From = event_original["from"]
+
+        if event_Message_From == "group":
+            message_info = {
+                "message_type": "频道",
+                "user_id": event_original["user_id"],
+                "message": event_original["message"],
+                "group_id": event_original["group_id"],
+                "message_id": event_original["message_id"]
+            }
+
+            logger.info(message=f"[消息][频道] 收到来自频道:{event_original['group_id']} 成员:{message_info['user_id']}的消息: {message_info['message']}  ({message_info['message_id']})", flag="Log")
+
+        if event_Message_From == "private":
+            message_info = {
+                "message_type": "好友",
+                "user_id": event_original["user_id"],
+                "message": event_original["message"]
+            }
+
+            logger.info(message=f"[消息][好友] 收到来自好友:{message_info['user_id']}的消息:  {message_info['message']}", flag="Log")

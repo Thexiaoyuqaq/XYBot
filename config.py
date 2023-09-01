@@ -1,7 +1,7 @@
 import json
 import os
 
-from LogSys import Log
+from utils.Manager.Log_Manager import Log
 
 logger = Log()
 
