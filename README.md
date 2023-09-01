@@ -21,11 +21,13 @@ XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ�
    ```bash
    git clone git@github.com:Thexiaoyuqaq/XYBot.git
    cd XYBot
+   ```
    
 2.安装项目依赖：
 
    ```bash
    pip install -r requirements.txt
+   ```
 
 ### 2. 配置 Go-CQHTTP
 
@@ -37,6 +39,7 @@ XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ�
 在项目根目录下，运行主程序：
    ```bash
    python main.py
+   ```
 按照控制台输出的提示信息，填写与Go-CQHTTP对接所需的信息，包括WebSocket地址、端口、API密钥等。
 
 ## 插件系统
@@ -91,6 +94,7 @@ class Plugin:
         message = event_original["message"]  # 获取消息内容
         #await send_PrivateMessage(user_id, f"收到好友消息，消息内容: {message}")
         await send_FriendMessage(user_id,f"收到好友消息，消息内容: {message}")
+```
 
 ## 贡献
 
