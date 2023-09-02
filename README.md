@@ -93,7 +93,6 @@ class Plugin:
         # 好友消息事件处理逻辑
         user_id = event_original["user_id"]  # 获取用户ID
         message = event_original["message"]  # 获取消息内容
-        #await send_PrivateMessage(user_id, f"收到好友消息，消息内容: {message}")
         await send_FriendMessage(user_id,f"收到好友消息，消息内容: {message}")
 ```
 
