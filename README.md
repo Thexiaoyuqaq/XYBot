@@ -21,7 +21,7 @@ XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ�
 
    ```bash
    git clone git@github.com:Thexiaoyuqaq/XYBot.git
-   cd XYBot```
+   cd XYBot
    
 2.安装项目依赖：
 
@@ -46,7 +46,7 @@ XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ�
 
    XYBot提供了一个强大的插件系统，允许用户自定义和扩展机器人的功能。你可以轻松编写自己的插件，并将其添加到机器人中。以下是如何编写和使用插件的示例：
 
-###编写自定义插件
+### 编写自定义插件
    1.在项目的 Plugins 目录下创建一个新的Python文件，例如 MyPlugin.py。
    2.按照需求编写你的插件以完善你所需要的功能，以下是一个基础的示例：
 ```Python
