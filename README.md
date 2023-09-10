@@ -1,10 +1,10 @@
 # XYQBOT机器人框架 - Python
 
-![XYQBOT](http://299mc.cn:13080/tu.png)
+![XYQBOT](https://skin.459mc.cn:13080/tu.png)
 
 ## 简介
 
-XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ机器人的过程。该框架提供了丰富的功能和工具，以便你能够轻松地构建各种各样的QQ机器人应用。
+XYBot是一个基于Python，对接Go-CQHTTP的框架，旨在简化创建自定义QQ机器人的过程。该框架提供了丰富的功能和工具，以便你能够轻松地构建各种各样的QQ机器人应用。
 
 ## 功能特点
 
@@ -55,7 +55,16 @@ XYBot是一个基于Python的QQ机器人框架，旨在简化创建自定义QQ�
 ```Python
 from utils.Api.Command_Api import *
 
+Plugin_Info = {
+    'name': '示例插件',
+    'author': 'xxx',
+    'version': '1.0.0',
+}
+
 class Plugin:
+    def get_plugin_info(self):
+        return Plugin_Info
+
     async def Notice_Group_join(self, event_original):
         # 加群事件处理逻辑
         group_id = event_original["group_id"]  # 获取群组ID
@@ -115,6 +124,7 @@ class Plugin:
 
 - [ ] 支持更多平台
 - [ ] 制作WIKI界面
+- [ ] 把固定执行函数修改为触发器
 - [ ] <del>支持DChat平台</del>
 
 ## 已完成事项
