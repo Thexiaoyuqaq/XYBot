@@ -1,6 +1,6 @@
 # XYQBOT机器人框架 - Python
 
-![XYQBOT](https://skin.459mc.cn:13080/tu.png)
+![XYQBOT](https://skin.459mc.cn/tu.png)
 
 ## 简介
 
