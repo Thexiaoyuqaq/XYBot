@@ -1,4 +1,4 @@
-aiohttp==3.8.5
+aiohttp==3.9.0
 pyppeteer==1.0.2
 websockets==10.4
 asyncio
