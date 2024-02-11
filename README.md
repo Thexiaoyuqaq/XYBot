@@ -2,6 +2,10 @@
 
 ![XYQBOT](https://skin.459mc.cn/tu.png)
 
+# !!通知：下次更新将不再支持GO-CQHTTP连接
+
+[查看更新详情](https://github.com/Thexiaoyuqaq/XYBot/issues/12)
+
 ## 简介
 
 XYBot是一个基于Python，对接Go-CQHTTP的框架，旨在简化创建自定义QQ机器人的过程。该框架提供了丰富的功能和工具，以便你能够轻松地构建各种各样的QQ机器人应用。
@@ -122,11 +126,11 @@ class Plugin:
 
 ## 待完成事项
 
-- [ ] 支持更多平台
+- [ ] 支持新框架
 - [ ] 制作WIKI页面
 - [ ] 把插件的固定函数修改为触发器
-- [ ] 插件信息可以添加依赖
-- [ ] <del>支持DChat平台</del>
+- [ ] 插件信息可以添加依赖配置
+- [ ] 完善插件
 
 ## 已完成事项
 
