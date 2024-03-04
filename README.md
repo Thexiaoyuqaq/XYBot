@@ -26,6 +26,7 @@ XYBot是一个基于Python，对接perpetua的框架，旨在简化创建自定�
 | /send_group_msg          | [发送群消息]           |
 | /get_group_info          | [获取群信息]           |
 | 等待适配      | ..            |
+
 [发送群消息]: https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_group_msg-%E5%8F%91%E9%80%81%E7%BE%A4%E6%B6%88%E6%81%AF
 [获取群信息]: https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_info-%E8%8E%B7%E5%8F%96%E7%BE%A4%E4%BF%A1%E6%81%AF
 </details>
@@ -48,9 +49,9 @@ XYBot是一个基于Python，对接perpetua的框架，旨在简化创建自定�
 > 插件调用器 可前往 暂无 查看
 
 - [x] 群聊消息
-- [] 好友消息
-- [] 事件消息
-- [] 通知消息
+- [ ] 好友消息
+- [ ] 事件消息
+- [ ] 通知消息
 
 ## 快速开始
 
