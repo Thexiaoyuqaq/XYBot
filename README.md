@@ -88,14 +88,14 @@ XYBot是一个基于Python，对接perpetua的框架，旨在简化创建自定�
    XYBot提供了一个强大的插件系统，允许用户自定义和扩展机器人的功能。你可以轻松编写自己的插件，并将其添加到机器人中。以下是如何编写和使用插件的示例：
 
 ### 编写自定义插件
-
+   #### MessageApi更多数据API 详见：[Plugin_Api.py](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Plugin_Api.py)
+   #### Api 更多数据API 详见：[Command_Api.py](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Command_Api.py)
+   
    1.在项目的 Plugins 目录下创建一个新的Python文件，例如 MyPlugin.py。
    
    2.按照需求编写你的插件以完善你所需要的功能，以下是一个基础的示例：
    
 ```Python
-#MessageApi更多数据API 详见：[Plugin_Api.py](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Plugin_Api.py)
-#Api 更多数据API 详见：[Command_Api.py](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Command_Api.py)
 
 from utils.Api.Command_Api import *
 
