@@ -3,97 +3,115 @@ import json
 import asyncio
 import websockets
 import concurrent.futures
-from Log import *
-from utils.Api.Plugin_Api import *
-from utils.Manager.Plugin_Manager import load_plugins
 from utils.Manager.Config_Manager import config_create, config_load, connect_config_load
+from utils.Api.Plugin_Api import Plugin_Api
+from utils.Api.Bot_Api import Bot
+from utils.Manager.Plugin_Manager import load_plugins
+from utils.Manager.Log_Manager import Log
+from Log import cmd_Log
 from pyppeteer import launch
+from Global.Global import GlobalVal
+from utils.Manager.Message_Manager import Message_to_New
 
 logger = Log()
+GlobalVal.lock = asyncio.Lock()
+
 config_create()
 config = config_load()
-if os.path.exists('config/Bot/connect.ini'):
-    plugins = load_plugins()
 
-async def handle_message_cq(event_original: str) -> None:
-    event_original = json.loads(event_original)
-    event_PostType = event_original["post_type"]
+if os.path.exists("config/Bot/connect.json"):
+    GlobalVal.plugin_list = load_plugins()
 
-    if event_PostType != "meta_event":
-        asyncio.create_task(cmd_Log(event_PostType, event_original))
 
-    if event_PostType == "message":
-        event_Message_From = event_original["message_type"]
+async def process_message(event_original_str: str) -> None:
+    event_original = json.loads(event_original_str)
 
-        if event_Message_From == "group":
-            asyncio.create_task(Plugins_Group_Message(event_original, plugins))
-        elif event_Message_From == "private":
-            asyncio.create_task(Plugins_Friend_Message(event_original, plugins))
+    if event_original is not None and "post_type" in event_original:
+        Message_json = await Message_to_New(event_original)
+        event_PostType = Message_json.get("post_type", "")
 
-    if event_PostType == "request":
-        asyncio.create_task(Plugins_Request(event_original, plugins))
+        tasks = [
+            asyncio.create_task(Message_log(event_PostType, Message_json)),
+            asyncio.create_task(handle_message_cq(event_PostType, Message_json)),
+        ]
+        await asyncio.gather(*tasks)
 
-    if event_PostType == "notice":
-        event_Notice_Type = event_original["notice_type"]
 
-        if event_Notice_Type == "group_increase":
-            asyncio.create_task(Plugins_Notice_join(event_original, plugins))
+async def Message_log(event_PostType: str, Message_json: str) -> None:
+    if event_PostType:
+        if event_PostType != "心跳包":
+            asyncio.create_task(cmd_Log(event_PostType, Message_json))
 
-        if event_Notice_Type == "group_decrease":
-            asyncio.create_task(Plugins_Notice_leave(event_original, plugins))
+
+async def handle_message_cq(event_PostType: str, Message_json: str) -> None:
+    if event_PostType == "消息":
+        event_Message_From = Message_json["message_type"]
+
+        if event_Message_From == "群聊":
+            asyncio.create_task(Plugin_Api.Plugins_Group_Message(Message_json))
+        elif event_Message_From == "好友":
+            asyncio.create_task(Plugin_Api.Plugins_Friend_Message(Message_json))
+
+    elif event_PostType == "请求":
+        asyncio.create_task(Plugin_Api.Plugins_Request(Message_json))
+
+    elif event_PostType == "事件":
+        event_Notice_Type = Message_json["notice_type"]
+
+        if event_Notice_Type == "进群":
+            asyncio.create_task(Plugin_Api.Plugins_Notice_join(Message_json))
+
+        if event_Notice_Type == "退群":
+            asyncio.create_task(Plugin_Api.Plugins_Notice_leave(Message_json))
+
 
 async def main() -> None:
     try:
-        if not os.path.exists('config/Bot/connect.ini'):
-            print("检测到首次运行,正在创建配置文件")
-            while True:
-                print("对接类型: (回复数字)")
-                print("1.Go-CQHTTP")
-                print("2.DChat")
-                connect_type = input()
+        await Bot.initialization()
 
-                if connect_type == "1":
-                    print("请输入Go-CQHTTP的HTTP接口端口")
-                    cq_http_port = input()
-                    print("请输入Go-CQHTTP的正向WebSocket接口端口")
-                    cq_websocket_port = input()
-                    config = {
-                        "gocq": {
-                            "cq_host": "127.0.0.1",
-                            "cq_http_port": cq_http_port,
-                            "cq_websocket_port": cq_websocket_port
-                        }
-                    }
-                    with open("config/Bot/connect.ini", "w") as config_file:
-                        json.dump(config, config_file)
-                    input("配置已创建请重新运行程序")
-                    break
-                elif connect_type == "2":
-                    print("DChat已弃用")
-                else:
-                    print("错误的类型，请重新输入。")
+        connect_config = connect_config_load()
+
+        if "perpetua" in connect_config:
+            logger.info(message="当前使用perpetua方式连接", flag="Main")
+            await gocq_start_server()
         else:
-            connect_config = connect_config_load()
-            if "gocq" in connect_config:
-                logger.info(message="当前使用GO-CQHTTP方式连接", flag="Main")
-                await gocq_start_server()
-            else:
-                logger.error(message="未知接入方式",flag="Main")
+            logger.error(message="未知接入方式", flag="Main")
     except Exception as e:
         logger.error(message="主程序出错：" + str(e))
 
+
 async def gocq_start_server() -> None:
     connect_config = connect_config_load()
-    host = connect_config["gocq"]["cq_host"]
-    ws_port = connect_config["gocq"]["cq_websocket_port"]
-    logger.info(message="[WS] 等待与Go-CQHTTP建立链接", flag="Main")
-    async with websockets.connect('ws://{}:{}'.format(host, ws_port)) as websocket:
-        logger.info(message="[WS] 成功与Go-CQHTTP建立链接", flag="Main")
-        asyncio.create_task(Plugins_Start(plugins))
-        with concurrent.futures.ThreadPoolExecutor():
+
+    host = connect_config["perpetua"]["host"]
+    http_port = int(connect_config["perpetua"]["http_port"])
+    websocket_port = int(connect_config["perpetua"]["websocket_port"])
+    suffix = connect_config["perpetua"]["suffix"]
+
+    if websocket_port == 0:
+        logger.info(message="[WS] 正在尝试获取PerPetua-Ws端口", flag="Main")
+        try:
+            websocket_port = await Bot.perpetua_get_ws_port()
+        except Exception as e:
+            logger.error(message="获取PerPetua-Ws端口失败：" + str(e))
+            exit()
+
+    async with websockets.connect(
+        "ws://{}:{}/{}".format(host, websocket_port, suffix)
+    ) as websocket:
+        GlobalVal.websocket = websocket
+
+        logger.info(message="[WS] 成功与PerPetua-Ws建立链接", flag="Main")
+        asyncio.create_task(Plugin_Api.Plugins_Start())
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             while True:
-                message = await websocket.recv()
-                asyncio.create_task(handle_message_cq(message))
+                async with GlobalVal.lock:
+                    message = await websocket.recv()
+
+                    # asyncio.create_task(Message_log(message))
+                    # asyncio.create_task(handle_message_cq(message))
+                    asyncio.create_task(process_message(message))
+
 
 if __name__ == "__main__":
     try:
@@ -104,4 +122,4 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(message="asyncio.run 出错：" + str(e))
     except KeyboardInterrupt as e:
-        loop.run_until_complete(Plugins_Stop(plugins))
+        loop.run_until_complete(Plugin_Api.Plugins_Stop())
