@@ -28,13 +28,14 @@ async def process_message(event_original_str: str) -> None:
 
     if event_original is not None and "post_type" in event_original:
         Message_json = await Message_to_New(event_original)
-        event_PostType = Message_json.get("post_type", "")
+        if Message_json != None:
+            event_PostType = Message_json.get("post_type", "none")
 
-        tasks = [
-            asyncio.create_task(Message_log(event_PostType, Message_json)),
-            asyncio.create_task(handle_message_cq(event_PostType, Message_json)),
-        ]
-        await asyncio.gather(*tasks)
+            tasks = [
+                asyncio.create_task(Message_log(event_PostType, Message_json)),
+                asyncio.create_task(handle_message_cq(event_PostType, Message_json)),
+            ]
+            await asyncio.gather(*tasks)
 
 
 async def Message_log(event_PostType: str, Message_json: str) -> None:
@@ -103,14 +104,11 @@ async def gocq_start_server() -> None:
 
         logger.info(message="[WS] 成功与PerPetua-Ws建立链接", flag="Main")
         asyncio.create_task(Plugin_Api.Plugins_Start())
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            while True:
-                async with GlobalVal.lock:
-                    message = await websocket.recv()
-
+        async for message in websocket:  
+                    #message = await websocket.recv()
                     # asyncio.create_task(Message_log(message))
                     # asyncio.create_task(handle_message_cq(message))
-                    asyncio.create_task(process_message(message))
+            asyncio.create_task(process_message(message))
 
 
 if __name__ == "__main__":

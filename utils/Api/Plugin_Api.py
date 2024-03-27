@@ -42,8 +42,8 @@ class APIWrapper:
             ):
                 # try:
                 await plugin.GroupMessage(messageApi, message)
-             except Exception as e:
-                logger.error(f"Error: {str(e)}", flag=plugin_name)
+            # except Exception as e:
+            #    logger.error(f"Error: {str(e)}", flag=plugin_name)
             else:
                 pass
                 # print(event_Time + f"[警告][插件][跳过][消息][{plugin_name}] 插件缺少 'GroupMessage' 方法，跳过执行。")
