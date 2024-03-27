@@ -72,28 +72,26 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
 ### 2. 配置 PerPetua
 
    1.下载[PerPetua](https://github.com/IUnlimit/perpetua) 并成功登入机器人，具体参考相应文档
-   2.注意准备好：在Config文件夹中的config.yml http.port
+   2.注意准备好：在Config文件夹中的config.yml http.port(这是perpetua端HTTP端口)
+   3.在appsettings.json中Implementations部分添加
+   ```json
+   {
+      "Type": "Http",
+      "Host": "*",
+      "Port": 8083, 
+      "AccessToken": ""
+    }
+   ```
+   注：记住port端口，这里是HTTP-API端口
    
 
 ### 3. 机器人环境配置
 
-   1). 在项目根目录下，打开http_api.py文件：
-   修改9-10行的配置为你们相应的
-   ```python
-   api_open_port = 2333  #http_api开放端口
-   http_port = 8080   #填config.yml中的http.port
-   ```
-
-   2). 运行http_api
-   ```bash
-   python http_api
-   ```
-   
-  3). 运行本体
+   1). 在项目根目录下， 运行main.py
    ```bash
    python main.py
    ```
-   按照控制台输出的提示信息，完成首次初始化配置，要求输入PerPetua的HTTP端口以及WS端口
+   按照控制台输出的提示信息，完成首次初始化配置，要求输入PerPetua的HTTP端口以及WS端口,以及http-api端口
 
 ## 插件系统
 
