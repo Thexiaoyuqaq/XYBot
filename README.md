@@ -152,7 +152,7 @@ class Plugin:
 
 ## 许可证
 
-   这个项目基于 MIT 许可证 开源。
+   这个项目基于 Creative Commons 许可证 开源。
 
 ## 作者
 
