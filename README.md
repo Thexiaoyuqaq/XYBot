@@ -71,17 +71,29 @@ XYBot是一个基于Python，对接perpetua的框架，旨在简化创建自定�
 
 ### 2. 配置 PerPetua
 
-   1.下载[PerPetua](https://github.com/IUnlimit/perpetua) 并登入机器人
-   2.获取在Config文件夹中的config.yml http.port 并在运行机器人部分填写
+   1.下载[PerPetua](https://github.com/IUnlimit/perpetua) 并成功登入机器人，具体参考相应文档
+   2.注意准备好：在Config文件夹中的config.yml http.port
    
 
-### 3. 运行机器人
+### 3. 机器人环境配置
 
-   在项目根目录下，运行主程序：
+   1). 在项目根目录下，打开http_api.py文件：
+   修改9-10行的配置为你们相应的
+   ```python
+   api_open_port = 2333  #http_api开放端口
+   http_port = 8080   #填config.yml中的http.port
+   ```
+
+   2). 运行http_api
+   ```bash
+   python http_api
+   ```
+   
+  3). 运行本体
    ```bash
    python main.py
    ```
-   按照控制台输出的提示信息，在初次运行时，会要求你输入PerPetua的HTTP端口以及WS端口
+   按照控制台输出的提示信息，完成首次初始化配置，要求输入PerPetua的HTTP端口以及WS端口
 
 ## 插件系统
 
@@ -129,7 +141,7 @@ class Plugin:
 
 ## 已完成事项
 
-- [x] 支持新框架
+- [x] 切换至NTQQ框架
 - [x] 整理项目结构
 - [x] 将API接口内容移植到Api函数下
 - [x] 项目实现异步并且线程优化
@@ -153,8 +165,6 @@ class Plugin:
    - **提交Bug报告**：如果您发现了任何问题或错误，请[创建一个Bug报告](https://github.com/Thexiaoyuqaq/XYBot/issues/new?assignees=&labels=BUG&projects=&template=bug_report.md&title=%5BBUG%5D+-+%E5%9C%A8%E6%AD%A4%E5%A1%AB%E5%86%99Bug%E7%9A%84%E7%AE%80%E8%A6%81%E6%8F%8F%E8%BF%B0)来帮助我们改进。
 
    - **实现新的功能**：如果您有新功能的想法，欢迎[提交一个功能请求](https://github.com/Thexiaoyuqaq/XYBot/issues/new?assignees=&labels=BUG&projects=&template=bug_report.md&title=%5BBUG%5D+-+%E5%9C%A8%E6%AD%A4%E5%A1%AB%E5%86%99Bug%E7%9A%84%E7%AE%80%E8%A6%81%E6%8F%8F%E8%BF%B0)。我们欢迎社区的贡献。
-
-   - **改进文档**：我们的文档可以改进吗？请随时[提出文档改进建议](https://github.com/Thexiaoyuqaq/XYBot/edit/main/README.md)。您的建议将有助于改善用户体验。
 
    - **分享这个项目**：如果您喜欢这个项目，不妨在社交媒体上分享它，帮助我们扩大项目的影响力。谢谢您的支持！
 
