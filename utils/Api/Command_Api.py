@@ -29,6 +29,61 @@ class APIWrapper:
                 return None
 
 
+    async def delete_msg(self, Message_ID: int) -> dict:
+        """
+        撤回消息 API。
+
+        参数:
+            Message_ID (int): 消息 ID。
+
+        返回:
+            dict: 群信息的 JSON 数据。
+        """
+        if "perpetua" in self.connect_config:
+            ws_recv = await (self.get(endpoint="/delete_msg", message_id = Message_ID))
+            ws_recv_data = ws_recv.get("data", {})
+            return ws_recv_data
+        else:
+            return "这个API暂未支持"
+    async def set_friend_add_request(self, flag: str, approve: bool, remark: str = None) -> dict:
+        """
+        处理好友请求。
+
+        参数:
+            flag (str): 加好友请求的 flag。
+            approve (bool): 操作类型： True为同意 相反 False为拒绝
+            remark (str): 备注，非必须
+
+        返回:
+            dict: 无。
+        """
+        if "perpetua" in self.connect_config:
+            ws_recv = await (self.get(endpoint="/set_friend_add_request", flag = flag, approve = approve, remark = remark))
+            ws_recv_data = ws_recv.get("data", {})
+            return ws_recv_data
+        else:
+            return "这个API暂未支持"
+        
+    async def set_friend_add_request(self, flag: str, type: str , approve: bool, reason: str = None) -> dict:
+        """
+        处理群聊请求。
+
+        参数:
+            flag (str): 加群请求的 flag。
+            type (str): 操作类型： add 或 invite, 请求类型（需与日志消息中的 sub_type 字段相符）
+            approve (bool): 操作类型：True为同意 相反 False为拒绝
+            reason (str): 拒绝理由: 仅在拒绝的时候可用
+
+        返回:
+            dict: 无。
+        """
+        if "perpetua" in self.connect_config:
+            ws_recv = await (self.get(endpoint="/set_friend_add_request", flag = flag, type = type, approve = approve, reason = reason))
+            ws_recv_data = ws_recv.get("data", {})
+            return ws_recv_data
+        else:
+            return "这个API暂未支持"
+        
     async def get_group_info(self, Group_ID: int) -> dict:
         """
         获取群信息的 API。
