@@ -1,11 +1,11 @@
-# XYQBOT机器人框架 - Python
+# XYQBOT机器人框架2.0 - Python
 
 ![XYQBOT](https://skin.459mc.cn/tu.png)
 
 
 ## 简介
 
-XYBot是一个基于Python，对接perpetua的框架，旨在简化创建自定义QQ机器人的过程。该框架提供了丰富的功能和工具，以便你能够轻松地构建各种各样的QQ机器人应用。
+XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定义QQ机器人的过程。该框架提供了丰富的功能和工具，以便你能够轻松地构建各种各样的QQ机器人应用。
 
 ## 功能特点
 
