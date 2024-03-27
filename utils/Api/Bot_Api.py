@@ -21,14 +21,19 @@ class APIWrapper:
                         print("请输入perpetua端HTTP端口")
                         perpetua_http_port = input("HTTP端口>> ")
                         print(
-                            "请输入perpetua端WebSocket端口  (如果为0则自动通过HTTP获取)"
+                            "请输入perpetua端WebSocket端口  (如果为0则通过自动获取)"
                         )
                         perpetua_websocket_port = input("WebSocket端口>> ")
+                        print(
+                            "请输入HTTP-API端口 "
+                        )
+                        http_api_port = input("HTTP-API端口>> ")
 
                         config = {
                             "perpetua": {
                                 "host": "127.0.0.1",
                                 "http_port": int(perpetua_http_port),
+                                "http_api_port": int(http_api_port),
                                 "websocket_port": int(perpetua_websocket_port),
                                 "suffix": "/",
                             }
