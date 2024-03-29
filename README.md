@@ -25,10 +25,16 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
 | ------------------------ | ---------------------- |
 | /send_group_msg          | [发送群消息]           |
 | /get_group_info          | [获取群信息]           |
+| /delete_msg          | [撤回消息]           |
+| /set_group_add_request          | [操作加群请求]           |
+| /set_friend_add_request          | [操作好友请求]           |
 | 等待适配      | ..            |
 
 [发送群消息]: https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_group_msg-%E5%8F%91%E9%80%81%E7%BE%A4%E6%B6%88%E6%81%AF
 [获取群信息]: https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_info-%E8%8E%B7%E5%8F%96%E7%BE%A4%E4%BF%A1%E6%81%AF
+[处理好友请求]: https://github.com/botuniverse/onebot-11/blob/master/api/public.md#set_friend_add_request-%E5%A4%84%E7%90%86%E5%8A%A0%E5%A5%BD%E5%8F%8B%E8%AF%B7%E6%B1%82
+[处理加群请求]: https://github.com/botuniverse/onebot-11/blob/master/api/public.md#set_group_add_request-%E5%A4%84%E7%90%86%E5%8A%A0%E7%BE%A4%E8%AF%B7%E6%B1%82%E9%82%80%E8%AF%B7
+[撤回信息]: https://github.com/botuniverse/onebot-11/blob/master/api/public.md#delete_msg-%E6%92%A4%E5%9B%9E%E6%B6%88%E6%81%AF
 </details>
 
 <details>
