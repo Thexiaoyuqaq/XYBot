@@ -64,7 +64,7 @@ class APIWrapper:
         else:
             return "这个API暂未支持"
         
-    async def set_friend_add_request(self, flag: str, type: str , approve: bool, reason: str = None) -> dict:
+    async def set_group_add_request(self, flag: str, type: str , approve: bool, reason: str = None) -> dict:
         """
         处理群聊请求。
 
