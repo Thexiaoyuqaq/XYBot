@@ -6,7 +6,7 @@
 import os
 from utils.Manager.Log_Manager import Log
 import inspect
-from config import *
+from utils.Manager.Config_Manager import config_create, config_load
 
 FILE_NAME = "Plugin_Manager"
 logger = Log()

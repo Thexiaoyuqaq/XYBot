@@ -60,7 +60,8 @@ async def Message_to_New(bot_Message_json: dict):
             elif Message_Sender_User_role == "admin":
                 Message_Sender_User_role = "管理"
 
-            ws_recv_data = await Api.get_group_info(Message_GroupID)
+            ws_recv = await Api.get_group_info(Message_GroupID)
+            ws_recv_data = ws_recv.get("data", {})
 
             Message_json["group"] = {
                 "group_id": Message_GroupID,
@@ -84,6 +85,59 @@ async def Message_to_New(bot_Message_json: dict):
     elif Message_PostType == "meta_event":
         Message_json = bot_Message_json
         Message_json["post_type"] = "心跳包"
+
+    elif Message_PostType == "notice":
+
+        Message_json["post_type"] = "事件"
+        Message_NoticeType = Message_json.get("notice_type","未知")
+
+        if Message_NoticeType == "group_increase": #群成员增加
+
+            Message_json["notice_type"] = "群成员增加"
+            Message_Event_user_id = Message_json.get("user_id", 0)
+            Message_Event_operator_id = Message_json.get("operator_id", 0)
+            Message_Event_time = Message_json.get("time", "11234")
+            Message_Event_sub_type = Message_json.get("sub_type", "未知")
+            Message_Event_group_id = Message_json.get("group_id", 0)
+
+            translation_dict = {
+                "approve": "主动",
+                "invite": "邀请",
+            }
+
+            Message_json["event"] = {
+                "user_id": Message_Event_user_id,  #进群用户qq
+                "operator_id": Message_Event_operator_id,  #操作人
+                "time": Message_Event_time,  #进群时间
+                "sub_type": translation_dict.get(Message_Event_sub_type, "未知"),   #进群类型： 主动、邀请
+                "group_id": Message_Event_group_id,   #事件群聊
+            }
+
+
+        elif Message_NoticeType == "group_decrease": #群成员减少
+            Message_json["notice_type"] = "群成员减少"
+
+            Message_Event_user_id = Message_json.get("user_id", 0)
+            Message_Event_operator_id = Message_json.get("operator_id", 0)
+            Message_Event_time = Message_json.get("time", "123456")
+            Message_Event_sub_type = Message_json.get("sub_type", "未知")
+            Message_Event_group_id = Message_json.get("group_id", 0)
+
+            translation_dict = {
+                "leave": "退出",
+                "kick": "踢出",
+                "kick_me": "被踢"
+            }
+
+            Message_json["event"] = {
+                "user_id": Message_Event_user_id,  #退群用户qq
+                "operator_id": Message_Event_operator_id,  #操作人： 如果主动退群则和user_id相同
+                "time": Message_Event_time,  #退群时间
+                "sub_type": translation_dict.get(Message_Event_sub_type, "未知"),   #退群类型： 退群、踢出
+                "group_id": Message_Event_group_id,   #事件群聊
+            }
+
+
     else:
         return None
     return Message_json

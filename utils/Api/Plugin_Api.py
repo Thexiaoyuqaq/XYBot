@@ -1,10 +1,36 @@
+import asyncio
 from utils.Manager.Log_Manager import Log
 from Global.Global import GlobalVal
 
 logger = Log()
 
-
 class APIWrapper:
+    def __init__(self):
+        self.plugin_methods = [
+            "GroupMessage",
+            "FriendMessage",
+            "Request",
+            "Notice_Group_join",
+            "Notice_Group_leave",
+            "Start",
+            "Stop",
+        ]
+
+    async def run_plugin_method(self, plugin, method, *args):
+        if hasattr(plugin, method) and callable(getattr(plugin, method)):
+            try:
+                await getattr(plugin, method)(*args)
+            except Exception as e:
+                logger.error(f"Error: {str(e)}", flag=plugin.__class__.__name__)
+
+    async def run_plugins(self, method_name, *args):
+        tasks = []
+        for _, plugin in GlobalVal.plugin_list:
+            tasks.append(
+                asyncio.create_task(self.run_plugin_method(plugin, method_name, *args))
+            )
+        await asyncio.gather(*tasks)
+
     async def Plugins_Group_Message(self, message):
         class Message_Builder:
             def __init__(self, message):
@@ -34,92 +60,25 @@ class APIWrapper:
             async def Get_Message_Message_Time(self):
                 return self.message["message"]["message_time"]
 
-        messageApi = Message_Builder(message)
-
-        for plugin_name, plugin in GlobalVal.plugin_list:
-            if hasattr(plugin, "GroupMessage") and callable(
-                getattr(plugin, "GroupMessage")
-            ):
-                # try:
-                await plugin.GroupMessage(messageApi, message)
-            # except Exception as e:
-            #    logger.error(f"Error: {str(e)}", flag=plugin_name)
-            else:
-                pass
-                # print(event_Time + f"[警告][插件][跳过][消息][{plugin_name}] 插件缺少 'GroupMessage' 方法，跳过执行。")
+        message_api = Message_Builder(message)
+        await self.run_plugins("GroupMessage", message_api, message)
 
     async def Plugins_Friend_Message(self, message):
-        for plugin_name, plugin in GlobalVal.plugin_list:
-            if hasattr(plugin, "FriendMessage") and callable(
-                getattr(plugin, "FriendMessage")
-            ):
-                try:
-                    await plugin.FriendMessage(message)
-                except Exception as e:
-                    logger.error(f"Error: {str(e)}", flag=plugin_name)
-            else:
-                pass
-                # print(event_Time + f"[警告][插件][跳过][消息][{plugin_name}] 插件缺少 'FriendMessage' 方法，跳过执行。")
+        await self.run_plugins("FriendMessage", message)
 
     async def Plugins_Request(self, message):
-        for plugin_name, plugin in GlobalVal.plugin_list:
-            if hasattr(plugin, "Request") and callable(getattr(plugin, "Request")):
-                try:
-                    await plugin.Request(message)
-                except Exception as e:
-                    logger.error(f"Error: {str(e)}", flag=plugin_name)
-            else:
-                pass
-                # print(event_Time + f"[警告][插件][跳过][事件][请求][{plugin_name}] 插件缺少 'Request' 方法，跳过执行。")
+        await self.run_plugins("Request", message)
 
     async def Plugins_Notice_join(self, message):
-        for plugin_name, plugin in GlobalVal.plugin_list:
-            if hasattr(plugin, "Notice_Group_join") and callable(
-                getattr(plugin, "Notice_Group_join")
-            ):
-                try:
-                    await plugin.Notice_Group_join(message)
-                except Exception as e:
-                    logger.error(f"Error: {str(e)}", flag=plugin_name)
-            else:
-                pass
-                # print(event_Time + f"[警告][插件][跳过][事件][进群][{plugin_name}] 插件缺少 'Notice_join' 方法，跳过执行。")
+        await self.run_plugins("Notice_Group_join", message)
 
     async def Plugins_Notice_leave(self, message):
-
-        for plugin_name, plugin in GlobalVal.plugin_list:
-            if hasattr(plugin, "Notice_Group_leave") and callable(
-                getattr(plugin, "Notice_Group_leave")
-            ):
-                try:
-                    await plugin.Notice_Group_leave(message)
-                except Exception as e:
-                    logger.error(f"Error: {str(e)}", flag=plugin_name)
-            else:
-                pass
-                # print(event_Time + f"[警告][插件][跳过][事件][退群][{plugin_name}] 插件缺少 'Notice_leave' 方法，跳过执行。")
+        await self.run_plugins("Notice_Group_leave", message)
 
     async def Plugins_Start(self):
-        for plugin_name, plugin in GlobalVal.plugin_list:
-            if hasattr(plugin, "Start") and callable(getattr(plugin, "Start")):
-                try:
-                    await plugin.Start()
-                except Exception as e:
-                    logger.error(f"Error: {str(e)}", flag=plugin_name)
-            else:
-                pass
-                # print(event_Time + f"[警告][插件][跳过][事件][启动][{plugin_name}] 插件缺少 'Start' 方法，跳过执行。")
+        await self.run_plugins("Start")
 
     async def Plugins_Stop(self):
-        for plugin_name, plugin in GlobalVal.plugin_list:
-            if hasattr(plugin, "Stop") and callable(getattr(plugin, "Stop")):
-                try:
-                    await plugin.Stop()
-                except Exception as e:
-                    logger.error(f"Error: {str(e)}", flag=plugin_name)
-            else:
-                pass
-                # print(event_Time + f"[警告][插件][跳过][事件][关闭][{plugin_name}] 插件缺少 'Stop' 方法，跳过执行。")
-
+        await self.run_plugins("Stop")
 
 Plugin_Api = APIWrapper()

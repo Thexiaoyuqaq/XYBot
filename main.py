@@ -2,7 +2,6 @@ import os
 import json
 import asyncio
 import websockets
-import concurrent.futures
 from utils.Manager.Config_Manager import config_create, config_load, connect_config_load
 from utils.Api.Plugin_Api import Plugin_Api
 from utils.Api.Bot_Api import Bot
@@ -26,22 +25,18 @@ if os.path.exists("config/Bot/connect.json"):
 async def process_message(event_original_str: str) -> None:
     event_original = json.loads(event_original_str)
 
-    if event_original is not None and "post_type" in event_original:
+    if event_original and "post_type" in event_original:
         Message_json = await Message_to_New(event_original)
-        if Message_json != None:
+        if Message_json:
             event_PostType = Message_json.get("post_type", "none")
 
-            tasks = [
-                asyncio.create_task(Message_log(event_PostType, Message_json)),
-                asyncio.create_task(handle_message_cq(event_PostType, Message_json)),
-            ]
-            await asyncio.gather(*tasks)
+            asyncio.create_task(Message_log(event_PostType, Message_json))
+            asyncio.create_task(handle_message_cq(event_PostType, Message_json))
 
 
 async def Message_log(event_PostType: str, Message_json: str) -> None:
-    if event_PostType:
-        if event_PostType != "心跳包":
-            asyncio.create_task(cmd_Log(event_PostType, Message_json))
+    if event_PostType and event_PostType != "心跳包":
+        asyncio.create_task(cmd_Log(event_PostType, Message_json))
 
 
 async def handle_message_cq(event_PostType: str, Message_json: str) -> None:
@@ -56,7 +51,7 @@ async def handle_message_cq(event_PostType: str, Message_json: str) -> None:
     elif event_PostType == "请求":
         asyncio.create_task(Plugin_Api.Plugins_Request(Message_json))
 
-    elif event_PostType == "事件":
+    elif event_PostType == "事件1":
         event_Notice_Type = Message_json["notice_type"]
 
         if event_Notice_Type == "进群":
@@ -68,13 +63,13 @@ async def handle_message_cq(event_PostType: str, Message_json: str) -> None:
 
 async def main() -> None:
     try:
-        await Bot.initialization()
+        await (Bot.initialization())
 
         connect_config = connect_config_load()
 
         if "perpetua" in connect_config:
             logger.info(message="当前使用perpetua方式连接", flag="Main")
-            await gocq_start_server()
+            await (gocq_start_server())
         else:
             logger.error(message="未知接入方式", flag="Main")
     except Exception as e:
@@ -98,16 +93,13 @@ async def gocq_start_server() -> None:
             exit()
 
     async with websockets.connect(
-        "ws://{}:{}/{}".format(host, websocket_port, suffix)
+        f"ws://{host}:{websocket_port}/{suffix}"
     ) as websocket:
         GlobalVal.websocket = websocket
 
         logger.info(message="[WS] 成功与PerPetua-Ws建立链接", flag="Main")
         asyncio.create_task(Plugin_Api.Plugins_Start())
-        async for message in websocket:  
-                    #message = await websocket.recv()
-                    # asyncio.create_task(Message_log(message))
-                    # asyncio.create_task(handle_message_cq(message))
+        async for message in websocket:
             asyncio.create_task(process_message(message))
 
 
@@ -115,9 +107,8 @@ if __name__ == "__main__":
     try:
         if config["main"]["Debug"] == "true":
             logger.warning(message="当前调试模式已开启", flag="Main")
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
+        asyncio.run(main())
     except Exception as e:
         logger.error(message="asyncio.run 出错：" + str(e))
-    except KeyboardInterrupt as e:
-        loop.run_until_complete(Plugin_Api.Plugins_Stop())
+    except KeyboardInterrupt:
+        asyncio.run(Plugin_Api.Plugins_Stop())
