@@ -50,13 +50,13 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
 ### 目前仅列出 目标事件、已完成事件，如需某些事件调度你可以提出一个issues
 |完成 | 事件                      | 功能                   | 备注      |
 |---| ------------------------ | ---------------------- |------------|
-| [X]  | 消息          | [GroupMessage]           | 群消息事件            |
-| []   | 消息          | [FriendMessage]           | 私人消息事件            |
-| [x]  | 事件          | [Notice_Group_join]     |  群成员增加事件    |
-| [x]  | 事件          | [Notice_Group_leave]    |  群成员减少事件    |
-| []   | 请求          | [Request_AddGroup]     |  加群请求／邀请    |
-| []   | 请求          | [Request_AddFriend]    |  加好友请求    |
-| [...]  | 等待适配      | ..            |      |
+- [x]  | 消息          | [GroupMessage]           | 群消息事件            |
+- [ ]   | 消息          | [FriendMessage]           | 私人消息事件            |
+- [x]  | 事件          | [Notice_Group_join]     |  群成员增加事件    |
+- [x]  | 事件          | [Notice_Group_leave]    |  群成员减少事件    |
+- [ ]   | 请求          | [Request_AddGroup]     |  加群请求／邀请    |
+- [ ]   | 请求          | [Request_AddFriend]    |  加好友请求    |
+- [ ]  | 等待适配      | ..            |      |
 
 [GroupMessage]: (https://github.com/botuniverse/onebot-11/blob/master/event/message.md#%E7%BE%A4%E6%B6%88%E6%81%AF)
 [FriendMessage]: (https://github.com/botuniverse/onebot-11/blob/master/event/message.md#%E7%A7%81%E8%81%8A%E6%B6%88%E6%81%AF)
