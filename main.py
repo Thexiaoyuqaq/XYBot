@@ -46,19 +46,24 @@ async def handle_message_cq(event_PostType: str, Message_json: str) -> None:
         if event_Message_From == "群聊":
             asyncio.create_task(Plugin_Api.Plugins_Group_Message(Message_json))
         elif event_Message_From == "好友":
-            asyncio.create_task(Plugin_Api.Plugins_Friend_Message(Message_json))
+            asyncio.create_task(Plugin_Api.Plugins_Private_Message(Message_json))
 
-    elif event_PostType == "请求":
-        asyncio.create_task(Plugin_Api.Plugins_Request(Message_json))
+    elif event_PostType == "请求1":
+        event_Request_Type = Message_json["request_type"]
+
+        if event_Request_Type == "好友请求":
+            asyncio.create_task(Plugin_Api.Plugins_Request_Friend(Message_json))
+        elif event_Request_Type == "群聊请求":
+            asyncio.create_task(Plugin_Api.Plugins_Request_Group(Message_json))
 
     elif event_PostType == "事件":
         event_Notice_Type = Message_json["notice_type"]
 
         if event_Notice_Type == "群成员增加":
-            asyncio.create_task(Plugin_Api.Plugins_Notice_join(Message_json))
+            asyncio.create_task(Plugin_Api.Plugins_Notice_GroupIncrease(Message_json))
 
-        if event_Notice_Type == "群成员减少":
-            asyncio.create_task(Plugin_Api.Plugins_Notice_leave(Message_json))
+        elif event_Notice_Type == "群成员减少":
+            asyncio.create_task(Plugin_Api.Plugins_Notice_GroupDecrease(Message_json))
 
 
 async def main() -> None:

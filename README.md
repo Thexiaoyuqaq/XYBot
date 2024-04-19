@@ -43,15 +43,15 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
 ### 符合 OneBot 标准的 插件调度器
 
 - [x] 群聊消息
-- [ ] 好友消息
+- [x] 好友消息
 - [x] 事件消息
-- [ ] 通知消息
+- [ ] 请求消息
 
 ### 目前仅列出 目标事件、已完成事件，如需某些事件调度你可以提出一个issues
 |完成 | 事件                      | 功能                   | 备注      |
 |---| ------------------------ | ---------------------- |------------|
 | √  | 消息          | [GroupMessage]           | 群消息事件            |
-| ×   | 消息          | [FriendMessage]           | 私人消息事件            |
+| √   | 消息          | [FriendMessage]           | 私人消息事件            |
 | √  | 事件          | [Notice_Group_join]     |  群成员增加事件    |
 | √  | 事件          | [Notice_Group_leave]    |  群成员减少事件    |
 | ×   | 请求          | [Request_AddGroup]     |  加群请求／邀请    |
@@ -143,7 +143,7 @@ class Plugin:
 
         if message == "1":
            await Api.send_Groupmessage(group_id,message_id, "1" ,True)
-    async def Notice_Group_join(self,messageApi, event_original):
+    async def Notice_GroupIncrease(self,messageApi, event_original):
         #群聊加群事件处理逻辑
         #获取数据
         group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
@@ -155,7 +155,7 @@ class Plugin:
            await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是通过[CQ:at,qq={operator_id}] 邀请进来的" ,False)
         else:
            await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是主动进来的" ,False)
-    async def Notice_Group_leave(self,messageApi, event_original):
+    async def Notice_GroupDecrease(self,messageApi, event_original):
        #群聊退群事件处理逻辑
        #获取数据
      
@@ -169,6 +169,16 @@ class Plugin:
        elif LeaveType == "被踢":
           await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 被[CQ:at,qq={operator_id}] 踢出群聊了" ,False)
 
+    async def PrivateMessage(self, messageApi, event_original):
+        # 私聊消息事件处理逻辑
+        # 获取数据
+
+        user_id = await messageApi.Get_Sender_UserID()
+        user_nickname = await messageApi.Get_Sender_NickName()
+        message = await messageApi.Get_Message_Message()
+        message_id = await messageApi.Get_Message_MessageID()
+         if message == "1":
+             asyncio.create_task(Api.send_PrivateMessage(user_id, message_id, "1", True))
    ### 更多获取数据接口详见： [Plugin_Api](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Plugin_Api.py)
 ```
 

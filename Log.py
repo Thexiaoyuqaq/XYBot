@@ -47,3 +47,5 @@ async def cmd_Log(post_type, original_event):
             asyncio.create_task(log_group_message(logger, original_event))
         elif event_Message_From == "好友":
             asyncio.create_task(log_friend_message(logger, original_event))
+    else:
+        logger.info(message="[未知] " + str(original_event), flag="Log")

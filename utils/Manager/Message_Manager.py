@@ -4,7 +4,6 @@ from utils.Api.Command_Api import Api
 
 async def Message_to_New(bot_Message_json: dict):
     Message_json = {}
-    # bot_Message_json = json.loads(bot_Message_json)
 
     Message_PostType = bot_Message_json.get("post_type", "none")
 
@@ -140,8 +139,35 @@ async def Message_to_New(bot_Message_json: dict):
             }
         else:
             Message_json["notice_type"] = "未知"
+    elif Message_PostType == "request":
+        Message_json["post_type"] = "请求"
+
+        Message_RequestType = bot_Message_json.get("request_type", "none")
+
+        if Message_RequestType == "group":
+            Message_json["request_type"] = "群聊请求"
+            Message_Request_group_id = bot_Message_json.get("group_id", 0)
+            Message_Request_sub_type = bot_Message_json.get("sub_type", "未知")
+            Message_Request_user_id = bot_Message_json.get("user_id", 0)
+            Message_Request_comment = bot_Message_json.get("comment", "")
+            Message_Request_flag = bot_Message_json.get("flag", "")
+            Message_Request_time = bot_Message_json.get("time", 11451459200)
+
+            translation_dict = {
+                "add": "加群",
+                "invite": "邀请",
+            }
+
+            Message_json["request"] = {
+                "group_id": Message_Request_group_id,
+                "sub_type": translation_dict.get(Message_Request_sub_type, "未知"),
+                "user_id": Message_Request_user_id,
+                "comment": Message_Request_comment,
+                "flag": Message_Request_flag,
+                "time": Message_Request_time,
+            }
 
 
     else:
-        return None
+        return bot_Message_json
     return Message_json

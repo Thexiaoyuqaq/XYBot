@@ -53,6 +53,11 @@ class APIWrapper:
             return await self.post(endpoint="/get_group_info", group_id=Group_ID, no_cache=False)
         else:
             return "这个API暂未支持"
+    async def get_stranger_info(self, User_ID: int) -> dict:
+        if "perpetua" in self.connect_config:
+            return await self.post(endpoint="/get_stranger_info", user_id=User_ID)
+        else:
+            return "这个API暂未支持"
 
     async def send_Groupmessage(
             self, Group_ID: int, Message_ID: int, Message: str, reply: bool = False) -> str:
@@ -64,12 +69,33 @@ class APIWrapper:
             ws_recv_data = ws_recv.get("data", {})
             message_id = ws_recv_data.get("message_id", 0)
             ws_recv2 = await self.get_group_info(Group_ID)
-            Group_Name = ws_recv2.get("data.group_name", "null")
+            ws_recv2_data = ws_recv2.get("data", {})
+            Group_Name = ws_recv2_data.get("group_name", "null")
 
             Message = Message.replace("\n", "\\n")
 
-            log_message = f"[消息][群聊] {Message}  --To    {Group_Name}({Group_ID}) ({message_id})"
+            log_message = f"[消息][群聊] {Message}  --To    {Group_Name}({Group_ID})   ({message_id})"
 
+            logger.info(message=log_message, flag="Api")
+            return message_id
+    async def send_PrivateMessage(
+            self, User_ID: int, Message_ID: int, Message: str, reply: bool = False
+    ) -> str:
+        if "perpetua" in self.connect_config:
+            if reply:
+                Message = f"[CQ:reply,id={Message_ID}]{Message}"
+
+            ws_recv = await self.post(endpoint="/send_private_msg", user_id=User_ID, message=Message)
+            ws_recv_data = ws_recv.get("data", {})
+            message_id = ws_recv_data.get("message_id", 0)
+
+            ws_recv2 = await self.get_stranger_info(User_ID)
+            ws_recv2_data = ws_recv2.get("data", {})
+            User_Name = ws_recv2_data.get("nickname", "null")
+
+            Message = Message.replace("\n", "\\n")
+            
+            log_message = f"[消息][私聊] {Message}  --To    {User_Name}({User_ID})   ({message_id})"
             logger.info(message=log_message, flag="Api")
             return message_id
 
