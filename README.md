@@ -150,6 +150,7 @@ class Plugin:
    async def Notice_Group_leave(self,messageApi, event_original):
       #群聊退群事件处理逻辑
       #获取数据
+     
       group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
       user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
       operator_id = await messageApi.Get_Operator_UserID()  # 获取操作者ID
@@ -159,6 +160,8 @@ class Plugin:
          await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 主动退群了" ,False)
       elif LeaveType == "被踢":
          await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 被[CQ:at,qq={operator_id}] 踢出群聊了" ,False)
+
+   ### 更多获取数据接口详见： [Plugin_Api](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Plugin_Api.py)
 ```
 
 ## 待完成事项
