@@ -59,6 +59,8 @@ async def Message_to_New(bot_Message_json: dict):
                 Message_Sender_User_role = "群主"
             elif Message_Sender_User_role == "admin":
                 Message_Sender_User_role = "管理"
+            else:
+                Message_Sender_User_role = "群员"
 
             ws_recv = await Api.get_group_info(Message_GroupID)
             ws_recv_data = ws_recv.get("data", {})
@@ -89,16 +91,16 @@ async def Message_to_New(bot_Message_json: dict):
     elif Message_PostType == "notice":
 
         Message_json["post_type"] = "事件"
-        Message_NoticeType = Message_json.get("notice_type","未知")
+        Message_NoticeType = bot_Message_json.get("notice_type","未知")
 
         if Message_NoticeType == "group_increase": #群成员增加
 
             Message_json["notice_type"] = "群成员增加"
-            Message_Event_user_id = Message_json.get("user_id", 0)
-            Message_Event_operator_id = Message_json.get("operator_id", 0)
-            Message_Event_time = Message_json.get("time", "11234")
-            Message_Event_sub_type = Message_json.get("sub_type", "未知")
-            Message_Event_group_id = Message_json.get("group_id", 0)
+            Message_Event_user_id = bot_Message_json.get("user_id", 0)
+            Message_Event_operator_id = bot_Message_json.get("operator_id", 0)
+            Message_Event_time = bot_Message_json.get("time", "11234")
+            Message_Event_sub_type = bot_Message_json.get("sub_type", "未知")
+            Message_Event_group_id = bot_Message_json.get("group_id", 0)
 
             translation_dict = {
                 "approve": "主动",
@@ -117,11 +119,11 @@ async def Message_to_New(bot_Message_json: dict):
         elif Message_NoticeType == "group_decrease": #群成员减少
             Message_json["notice_type"] = "群成员减少"
 
-            Message_Event_user_id = Message_json.get("user_id", 0)
-            Message_Event_operator_id = Message_json.get("operator_id", 0)
-            Message_Event_time = Message_json.get("time", "123456")
-            Message_Event_sub_type = Message_json.get("sub_type", "未知")
-            Message_Event_group_id = Message_json.get("group_id", 0)
+            Message_Event_user_id = bot_Message_json.get("user_id", 0)
+            Message_Event_operator_id = bot_Message_json.get("operator_id", 0)
+            Message_Event_time = bot_Message_json.get("time", "123456")
+            Message_Event_sub_type = bot_Message_json.get("sub_type", "未知")
+            Message_Event_group_id = bot_Message_json.get("group_id", 0)
 
             translation_dict = {
                 "leave": "退出",
@@ -136,6 +138,8 @@ async def Message_to_New(bot_Message_json: dict):
                 "sub_type": translation_dict.get(Message_Event_sub_type, "未知"),   #退群类型： 退群、踢出
                 "group_id": Message_Event_group_id,   #事件群聊
             }
+        else:
+            Message_json["notice_type"] = "未知"
 
 
     else:

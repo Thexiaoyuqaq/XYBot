@@ -51,13 +51,13 @@ async def handle_message_cq(event_PostType: str, Message_json: str) -> None:
     elif event_PostType == "请求":
         asyncio.create_task(Plugin_Api.Plugins_Request(Message_json))
 
-    elif event_PostType == "事件1":
+    elif event_PostType == "事件":
         event_Notice_Type = Message_json["notice_type"]
 
-        if event_Notice_Type == "进群":
+        if event_Notice_Type == "群成员增加":
             asyncio.create_task(Plugin_Api.Plugins_Notice_join(Message_json))
 
-        if event_Notice_Type == "退群":
+        if event_Notice_Type == "群成员减少":
             asyncio.create_task(Plugin_Api.Plugins_Notice_leave(Message_json))
 
 

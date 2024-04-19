@@ -38,7 +38,7 @@ async def log_friend_message(logger, event_original):
 async def cmd_Log(post_type, original_event):
     logger = Log()
 
-    if post_type == "notice":
+    if post_type == "事件":
         asyncio.create_task(log_notice(logger, original_event))
     elif post_type == "消息":
         event_Message_From = original_event.get("message_type", "")
