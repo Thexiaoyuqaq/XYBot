@@ -38,26 +38,33 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
 </details>
 
 <details>
-<summary>已实现 事件</summary>
+<summary>插件调度器</summary>
 
-### 符合 OneBot 标准的 事件
-
-| 事件                      | 功能                   |
-| ------------------------ | ---------------------- |
-| 消息          | [Message]           |
-| 等待适配      | ..            |
-
-[Message]: https://github.com/botuniverse/onebot-11/blob/master/event/message.md
-</details>
-
-## 插件调用器
-
-> 插件调用器 可前往 暂无 查看
+### 符合 OneBot 标准的 插件调度器
 
 - [x] 群聊消息
 - [ ] 好友消息
 - [x] 事件消息
 - [ ] 通知消息
+
+### 目前仅列出 目标事件、已完成事件，如需某些事件调度你可以提出一个issues
+|完成 | 事件                      | 功能                   | 备注      |
+|---| ------------------------ | ---------------------- |------------|
+| [X]  | 消息          | [GroupMessage]           | 群消息事件            |
+| []   | 消息          | [FriendMessage]           | 私人消息事件            |
+| [x]  | 事件          | [Notice_Group_join]     |  群成员增加事件    |
+| [x]  | 事件          | [Notice_Group_leave]    |  群成员减少事件    |
+| []   | 请求          | [Request_AddGroup]     |  加群请求／邀请    |
+| []   | 请求          | [Request_AddFriend]    |  加好友请求    |
+| [...]  | 等待适配      | ..            |      |
+
+[GroupMessage]: (https://github.com/botuniverse/onebot-11/blob/master/event/message.md#%E7%BE%A4%E6%B6%88%E6%81%AF)
+[FriendMessage]: (https://github.com/botuniverse/onebot-11/blob/master/event/message.md#%E7%A7%81%E8%81%8A%E6%B6%88%E6%81%AF)
+[Notice_Group_join]: (https://github.com/botuniverse/onebot-11/blob/master/event/notice.md#%E7%BE%A4%E6%88%90%E5%91%98%E5%A2%9E%E5%8A%A0)
+[Notice_Group_leave]: (https://github.com/botuniverse/onebot-11/blob/master/event/notice.md#%E7%BE%A4%E6%88%90%E5%91%98%E5%87%8F%E5%B0%91)
+[Request_AddGroup]: (https://github.com/botuniverse/onebot-11/blob/master/event/request.md#%E5%8A%A0%E5%A5%BD%E5%8F%8B%E8%AF%B7%E6%B1%82)
+[Request_AddFriend]: (https://github.com/botuniverse/onebot-11/blob/master/event/request.md#%E5%8A%A0%E7%BE%A4%E8%AF%B7%E6%B1%82%E9%82%80%E8%AF%B7)
+</details>
 
 ## 快速开始
 
