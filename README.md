@@ -120,6 +120,7 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
    
 ```Python
 
+
 from utils.Api.Command_Api import *
 
 Plugin_Info = {
@@ -130,43 +131,43 @@ Plugin_Info = {
 
 class Plugin:
     def get_plugin_info(self):
-      return Plugin_Info
+       return Plugin_Info
 
     async def GroupMessage(self,messageApi, event_original):
-      #群消息事件处理逻辑
-      #获取数据
-      group_id = await messageApi.Get_Group_GroupID() #获取群聊ID
-      user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
-      message = await messageApi.Get_Message_Message()  # 获取消息内容
-      message_id = await messageApi.Get_Message_MessageID()  # 获取消息ID
+        #群消息事件处理逻辑
+        #获取数据
+        group_id = await messageApi.Get_Group_GroupID() #获取群聊ID
+        user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
+        message = await messageApi.Get_Message_Message()  # 获取消息内容
+        message_id = await messageApi.Get_Message_MessageID()  # 获取消息ID
 
-      if message == "1":
-         await Api.send_Groupmessage(group_id,message_id, "1" ,True)
-   async def Notice_Group_join(self,messageApi, event_original):
-      #群聊加群事件处理逻辑
-      #获取数据
-      group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
-      user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
-      operator_id = await messageApi.Get_Operator_UserID()  # 获取操作者ID
-      JoinType = await messageApi.Get_User_JoinType()  # 获取加群类型：邀请、主动
+        if message == "1":
+           await Api.send_Groupmessage(group_id,message_id, "1" ,True)
+    async def Notice_Group_join(self,messageApi, event_original):
+        #群聊加群事件处理逻辑
+        #获取数据
+        group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
+        user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
+        operator_id = await messageApi.Get_Operator_UserID()  # 获取操作者ID
+        JoinType = await messageApi.Get_User_JoinType()  # 获取加群类型：邀请、主动
 
-      if JoinType == "邀请":
-         await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是通过[CQ:at,qq={operator_id}] 邀请进来的" ,False)
-      else:
-         await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是主动进来的" ,False)
-   async def Notice_Group_leave(self,messageApi, event_original):
-      #群聊退群事件处理逻辑
-      #获取数据
+        if JoinType == "邀请":
+           await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是通过[CQ:at,qq={operator_id}] 邀请进来的" ,False)
+        else:
+           await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是主动进来的" ,False)
+    async def Notice_Group_leave(self,messageApi, event_original):
+       #群聊退群事件处理逻辑
+       #获取数据
      
-      group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
-      user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
-      operator_id = await messageApi.Get_Operator_UserID()  # 获取操作者ID
-      LeaveType = await messageApi.Get_User_LeaveType()  # 获取退群类型：主动、被踢、自己被踢出
+       group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
+       user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
+       operator_id = await messageApi.Get_Operator_UserID()  # 获取操作者ID
+       LeaveType = await messageApi.Get_User_LeaveType()  # 获取退群类型：主动、被踢、自己被踢出
 
-      if LeaveType == "主动":
-         await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 主动退群了" ,False)
-      elif LeaveType == "被踢":
-         await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 被[CQ:at,qq={operator_id}] 踢出群聊了" ,False)
+       if LeaveType == "主动":
+          await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 主动退群了" ,False)
+       elif LeaveType == "被踢":
+          await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 被[CQ:at,qq={operator_id}] 踢出群聊了" ,False)
 
    ### 更多获取数据接口详见： [Plugin_Api](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Plugin_Api.py)
 ```
