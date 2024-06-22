@@ -39,7 +39,7 @@ def load_plugins():
 
     logger.info(message="正在加载插件", flag=FILE_NAME)
     for plugin in pluginList:
-        if plugin.endswith(".py"):
+        if plugin.endswith(".py") or plugin.endswith(".pyc"):
             module_name = plugin[:-3]
             try:
                 module = getattr(__import__(f"plugins.{module_name}"), module_name)

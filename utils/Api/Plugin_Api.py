@@ -64,7 +64,7 @@ class APIWrapper:
 
             async def Get_Sender_User_role(self):
                 """获取发送消息的用户角色。"""
-                return self.message["sender"]["role"]
+                return self.message["sender"]["user_role"]
 
             async def Get_Sender_UserID(self):
                 """获取发送消息的用户ID。"""
@@ -223,7 +223,7 @@ class APIWrapper:
                 return self.message["event"]["time"]
 
         message_api = Message_Builder(message)
-        await self.run_plugins("Notice_Group_join", message_api, message)
+        await self.run_plugins("Notice_GroupIncrease", message_api, message)
 
     async def Plugins_Notice_GroupDecrease(self, message):
         class Message_Builder:
@@ -253,7 +253,7 @@ class APIWrapper:
             async def Get_Event_Time(self):
                 return self.message["event"]["time"]
         message_api = Message_Builder(message)
-        await self.run_plugins("Notice_Group_leave", message_api, message)
+        await self.run_plugins("Notice_GroupDecrease", message_api, message)
 
     async def Plugins_Start(self):
         await self.run_plugins("Start")

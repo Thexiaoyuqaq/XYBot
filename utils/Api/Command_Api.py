@@ -13,17 +13,18 @@ class APIWrapper:
         if os.path.exists("config/Bot/connect.json"):
             self.connect_config = connect_config_load()
 
-    async def async_request_post(self, endpoint, **params):  # 修改这里
+    async def async_request_post(self, endpoint, **params):
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(url= f"http://{self.connect_config['perpetua']['host']}:{self.connect_config['perpetua']['http_api_port']}{endpoint}", json=params)
+                url = f"http://{self.connect_config['perpetua']['host']}:{self.connect_config['perpetua']['http_api_port']}{endpoint}"
+                response = await client.post(url= url, json=params)
                 response.raise_for_status()
                 return response.json()
             except httpx.HTTPStatusError as e:
                 print(f"无法调用 HTTP API：{e}")
                 return None
             except httpx.RequestError as e:
-                print(f"无法发起请求：{e}")
+                print(f"出现错误: 无法调用{endpoint}端点：{e} \ndebug: url({url}) \n params({params}) \n请检查api端口是否畅通，并检查代理服务器是否关闭，如都不能解决请在github反馈")
                 return None
             
     async def post(self, endpoint: str, **params):
