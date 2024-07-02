@@ -13,7 +13,6 @@ from Global.Global import GlobalVal
 from utils.Manager.Message_Manager import Message_to_New
 
 logger = Log()
-GlobalVal.lock = asyncio.Lock()
 
 config_create()
 config = config_load()

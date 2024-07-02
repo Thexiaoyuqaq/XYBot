@@ -1,10 +1,7 @@
-import asyncio
-import json
 import os
 import httpx
 from utils.Manager.Config_Manager import connect_config_load
 from utils.Manager.Log_Manager import Log
-from Global.Global import GlobalVal
 
 logger = Log()
 
