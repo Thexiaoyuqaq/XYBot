@@ -86,7 +86,8 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
 
    1.下载[PerPetua](https://github.com/IUnlimit/perpetua) 并成功登入机器人，具体参考相应文档
    2.注意准备好：在Config文件夹中的config.yml http.port(这是perpetua端HTTP端口)
-   3.在appsettings.json中Implementations部分添加
+   3.在appsettings.json中Implementations部分
+   (1) 添加如下内容，记得将上方的}后方加一个,(逗号)
    ```json
    {
       "Type": "Http",
@@ -96,7 +97,27 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
     }
    ```
    注：记住port端口，这里是HTTP-API端口
-   3.并将自带的"Type": "ReverseWebSocket",改为"Type": "ForwardWebSocket",
+   （！！）（2）3.将自带的"Type": "ReverseWebSocket", 修改为 "Type": "ForwardWebSocket",  
+   完整修改：
+   '''json
+       "Implementations": [
+       {
+            "Type": "ForwardWebSocket",
+            "Host": "127.0.0.1",
+            "Port": 8080,
+            "Suffix": "/onebot/v11/ws",
+            "ReconnectInterval": 5000,
+            "HeartBeatInterval": 5000,
+            "AccessToken": ""
+        },
+        {
+            "Type": "Http",
+            "Host": "*",
+            "Port": 8083, 
+            "AccessToken": ""
+          }
+    ]
+   '''
    
 
 ### 3. 机器人环境配置
