@@ -96,7 +96,8 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
       "AccessToken": ""
     }
    ```
-   注：记住port端口，这里是HTTP-API端口
+   注：记住port端口，这里是HTTP-API的配置
+
    （！！）（2）3.将自带的"Type": "ReverseWebSocket", 修改为 "Type": "ForwardWebSocket",  
 
    完整修改：
