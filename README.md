@@ -96,6 +96,7 @@ XYBot是一个基于Python，对接PerPetua的框架，旨在简化创建自定�
     }
    ```
    注：记住port端口，这里是HTTP-API端口
+   3.并将自带的"Type": "ReverseWebSocket",改为"Type": "ForwardWebSocket",
    
 
 ### 3. 机器人环境配置
