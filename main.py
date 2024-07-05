@@ -82,7 +82,7 @@ async def main() -> None:
         connect_config = connect_config_load()
 
         if "perpetua" in connect_config:
-            logger.info("当前使用perpetua方式连接", flag="Main")
+            logger.info("当前选用Lagrange方式连接", flag="Main")
             await gocq_start_server()
         else:
             logger.error("未知接入方式", flag="Main")
@@ -95,24 +95,19 @@ async def gocq_start_server() -> None:
         connect_config = connect_config_load()
 
         host = connect_config["perpetua"]["host"]
-        http_port = int(connect_config["perpetua"]["http_port"])
         websocket_port = int(connect_config["perpetua"]["websocket_port"])
         suffix = connect_config["perpetua"]["suffix"]
 
-        if websocket_port == 0:
-            logger.info("[WS] 正在尝试获取PerPetua-Ws端口", flag="Main")
-            websocket_port = await Bot.perpetua_get_ws_port()
-
         async with websockets.connect(f"ws://{host}:{websocket_port}/{suffix}") as websocket:
             GlobalVal.websocket = websocket
-            logger.info("[WS] 成功与PerPetua-Ws建立链接", flag="Main")
+            logger.info("[WS] 成功与Lagrange-Ws建立链接", flag="Main")
 
             await Plugin_Api.Plugins_Start()
 
             async for message in websocket:
                 asyncio.create_task(process_message(message))
     except Exception as e:
-        logger.error(f"gocq_start_server 出错：{e}")
+        logger.error(f"在连接WS出错：{e}",flag="Main")
 
 
 if __name__ == "__main__":
