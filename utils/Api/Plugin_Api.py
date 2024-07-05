@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from utils.Manager.Log_Manager import Log
 from Global.Global import GlobalVal
 
@@ -23,7 +24,9 @@ class APIWrapper:
             try:
                 await getattr(plugin, method)(*args)
             except Exception as e:
-                logger.error(f"错误: {str(e)}", flag=plugin.__class__.__name__)
+                plugin_name = plugin.get_plugin_info().get('name', plugin.__class__.__name__)
+                traceback_str = traceback.format_exc()
+                logger.error(f"错误: {str(traceback_str)}", flag=plugin_name)
 
     async def run_plugins(self, method_name, *args):
         """
