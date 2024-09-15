@@ -35,25 +35,13 @@ XYBot是一个基于Python，以Lagrange为基础的框架，旨在简化创建�
 <summary>插件调度器</summary>
 
 ### 符合 OneBot 标准的 插件调度器
+ 人话：支持传入插件的事件
 
-- [x] 群聊消息
-- [x] 好友消息
-- [x] 事件消息
-- [ ] 请求消息
+- [x] 聊天消息 (群聊消息,好友消息)
+- [x] 事件消息 (荣誉,戳一戳,禁言...)
+- [X] 请求消息 (加群请求,退群请求)
+- [X] 插件管理器（启动/卸载） 
 
-### 目前仅列出 目标事件、已完成事件，如需某些事件调度你可以提出一个issues
-
-| 完成 | 事件                      | 功能                   | 备注      |
-|---| ------------------------ | ---------------------- |------------|
-| √  | 消息          | [GroupMessage](https://github.com/botuniverse/onebot-11/blob/master/event/message.md#%E7%BE%A4%E6%B6%88%E6%81%AF)           | 群消息事件            |
-| √  | 消息          | [FriendMessage](https://github.com/botuniverse/onebot-11/blob/master/event/message.md#%E7%A7%81%E8%81%8A%E6%B6%88%E6%81%AF)           | 私人消息事件            |
-| √  | 事件          | [Notice_Group_join](https://github.com/botuniverse/onebot-11/blob/master/event/notice.md#%E7%BE%A4%E6%88%90%E5%91%98%E5%A2%9E%E5%8A%A0)     |  群成员增加事件    |
-| √  | 事件          | [Notice_Group_leave](https://github.com/botuniverse/onebot-11/blob/master/event/notice.md#%E7%BE%A4%E6%88%90%E5%91%98%E5%87%8F%E5%B0%91)    |  群成员减少事件    |
-| ×   | 请求          | [Request_AddGroup](https://github.com/botuniverse/onebot-11/blob/master/event/request.md#%E5%8A%A0%E7%BE%A4%E8%AF%B7%E6%B1%82%E9%82%80%E8%AF%B7)     |  加群请求／邀请    |
-| ×   | 请求          | [Request_AddFriend](https://github.com/botuniverse/onebot-11/blob/master/event/request.md#%E5%8A%A0%E5%A5%BD%E5%8F%8B%E8%AF%B7%E6%B1%82)    |  加好友请求    |
-| ...  | 等待适配      | ..            |            |
-
-</details>
 
 ## 快速开始
 
@@ -93,7 +81,7 @@ XYBot是一个基于Python，以Lagrange为基础的框架，旨在简化创建�
 
    完整修改：
    ```json
-       "Implementations": [
+   "Implementations": [
     {
         "Type": "ForwardWebSocket",
         "Host": "127.0.0.1",
@@ -135,70 +123,8 @@ XYBot是一个基于Python，以Lagrange为基础的框架，旨在简化创建�
    1.在项目的 Plugins 目录下创建一个新的Python文件，例如 MyPlugin.py。
    
    2.按照需求编写你的插件以完善你所需要的功能，以下是一个基础的示例：
-   
-```Python
-
-
-from utils.Api.Command_Api import *
-
-Plugin_Info = {
-    'name': '示例插件',
-    'author': 'xxx',
-    'version': '1.0.0'
-}
-
-class Plugin:
-    def get_plugin_info(self):
-       return Plugin_Info
-
-    async def GroupMessage(self,messageApi, event_original):
-        #群消息事件处理逻辑
-        #获取数据
-        group_id = await messageApi.Get_Group_GroupID() #获取群聊ID
-        user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
-        message = await messageApi.Get_Message_Message()  # 获取消息内容
-        message_id = await messageApi.Get_Message_MessageID()  # 获取消息ID
-
-        if message == "1":
-           await Api.send_Groupmessage(group_id,message_id, "1" ,True)
-    async def Notice_GroupIncrease(self,messageApi, event_original):
-        #群聊加群事件处理逻辑
-        #获取数据
-        group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
-        user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
-        operator_id = await messageApi.Get_Operator_UserID()  # 获取操作者ID
-        JoinType = await messageApi.Get_User_JoinType()  # 获取加群类型：邀请、主动
-
-        if JoinType == "邀请":
-           await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是通过[CQ:at,qq={operator_id}] 邀请进来的" ,False)
-        else:
-           await Api.send_Groupmessage(group_id,0, f"欢迎 [CQ:at,qq={user_id}] 加入本群，他是主动进来的" ,False)
-    async def Notice_GroupDecrease(self,messageApi, event_original):
-       #群聊退群事件处理逻辑
-       #获取数据
-     
-       group_id = await messageApi.Get_Group_GroupID()  # 获取群聊ID
-       user_id = await messageApi.Get_Sender_UserID()  # 获取用户ID
-       operator_id = await messageApi.Get_Operator_UserID()  # 获取操作者ID
-       LeaveType = await messageApi.Get_User_LeaveType()  # 获取退群类型：主动、被踢、自己被踢出
-
-       if LeaveType == "主动":
-          await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 主动退群了" ,False)
-       elif LeaveType == "被踢":
-          await Api.send_Groupmessage(group_id,0, f"[CQ:at,qq={user_id}] 被[CQ:at,qq={operator_id}] 踢出群聊了" ,False)
-
-    async def PrivateMessage(self, messageApi, event_original):
-        # 私聊消息事件处理逻辑
-        # 获取数据
-
-        user_id = await messageApi.Get_Sender_UserID()
-        user_nickname = await messageApi.Get_Sender_NickName()
-        message = await messageApi.Get_Message_Message()
-        message_id = await messageApi.Get_Message_MessageID()
-         if message == "1":
-             asyncio.create_task(Api.send_PrivateMessage(user_id, message_id, "1", True))
+   请见 [example.py](https://github.com/Thexiaoyuqaq/XYBot/blob/main/plugins/example.py)
    ### 更多获取数据接口详见： [Plugin_Api](https://github.com/Thexiaoyuqaq/XYBot/blob/main/utils/Api/Plugin_Api.py)
-```
 
 ## 待完成事项
 - [ ] 完善机器人对接框架的对接度
