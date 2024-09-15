@@ -1,6 +1,7 @@
 import os
 import json
 import asyncio
+import traceback
 import websockets
 from utils.Manager.Config_Manager import config_create, config_load, connect_config_load
 from utils.Api.Plugin_Api import Plugin_Api
@@ -10,9 +11,10 @@ from utils.Manager.Log_Manager import Log
 from Log import cmd_Log
 from pyppeteer import launch
 from Global.Global import GlobalVal
-from utils.Manager.Message_Manager import Message_to_New
+from utils.Manager.Message_Manager import MessageNew
 
 logger = Log()
+GlobalVal.lock = asyncio.Lock()
 
 config_create()
 config = config_load()
@@ -26,7 +28,7 @@ async def process_message(event_original_str: str) -> None:
         event_original = json.loads(event_original_str)
 
         if event_original and "post_type" in event_original:
-            Message_json = await Message_to_New(event_original)
+            Message_json = await MessageNew(event_original)
             if Message_json:
                 event_PostType = Message_json.get("post_type", "none")
 
@@ -37,7 +39,9 @@ async def process_message(event_original_str: str) -> None:
     except json.JSONDecodeError as e:
         logger.error(f"JSON 解码错误: {e}")
     except Exception as e:
-        logger.error(f"处理消息时发生错误: {e}")
+        plugin_name = "Main"
+        traceback_str = traceback.format_exc()
+        logger.error(f"错误: {str(traceback_str)}", flag=plugin_name) 
 
 
 async def Message_log(event_PostType: str, Message_json: str) -> None:

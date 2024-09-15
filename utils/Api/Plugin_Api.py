@@ -76,6 +76,10 @@ class APIWrapper:
             async def Get_Sender_NickName(self):
                 """获取发送消息的用户昵称。"""
                 return self.message["sender"]["user_nickname"]
+            
+            async def Get_Sender_UserCard(self):
+                """获取发送消息的用户名片。"""
+                return self.message["sender"]["user_card"]
 
             async def Get_Message_Message(self):
                 """获取消息内容。"""

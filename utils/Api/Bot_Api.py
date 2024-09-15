@@ -2,7 +2,6 @@ import json
 import os
 from utils.Manager.Config_Manager import config_create
 from utils.Manager.Log_Manager import Log
-from pyppeteer import launch
 
 logger = Log()
 
