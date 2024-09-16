@@ -12,8 +12,36 @@ async def format_notice(bot_Message_json: Dict) -> Dict:
     bot_Message_json (Dict): 从机器人获取的原始事件数据字典。
 
     返回:
-    Dict: 标准化的事件数据字典。
+    Dict: 标准化的事件数据字典，包含可读事件名称。
     """
+
+    # 定义通知类型与事件名称的映射字典
+    notice_type_mapping = {
+        "group_upload": "群文件上传",
+        "group_admin": {
+            "set": "管理员设置",
+            "unset": "管理员取消"
+        },
+        "group_decrease": {
+            "leave": "群成员减少",
+            "kick": "群成员被踢出",
+            "kick_me": "被踢出群聊"
+        },
+        "group_increase": {
+            "approve": "群成员增加",
+            "invite": "群成员邀请入群"
+        },
+        "group_ban": {
+            "ban": "群成员被禁言",
+            "lift_ban": "群成员解除禁言"
+        },
+        "group_recall": "群消息撤回",
+        "friend_recall": "好友消息撤回",
+        "notify": {
+            "poke": "戳一戳",
+            "honor": "群荣誉变更"
+        }
+    }
 
     def get_event_info() -> Dict:
         """
@@ -109,8 +137,16 @@ async def format_notice(bot_Message_json: Dict) -> Dict:
 
         return event_info
 
+    # 获取事件名称，替换事件类型为更具可读性的名字
+    notice_type = bot_Message_json.get("notice_type", "未知")
+    sub_type = bot_Message_json.get("sub_type", "未知")
+
+    event_name = notice_type_mapping.get(notice_type, "未知")
+    if isinstance(event_name, dict):
+        event_name = event_name.get(sub_type, event_name.get("未知", "未知"))
+
     return {
         "post_type": "事件",  # 上报类型
-        "notice_type": bot_Message_json.get("notice_type", "未知"),  # 通知类型
+        "notice_type": event_name,  # 通知类型替换为可读名称
         "event": get_event_info(),  # 事件信息
     }

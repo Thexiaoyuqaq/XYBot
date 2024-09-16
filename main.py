@@ -70,9 +70,9 @@ async def handle_message_cq(event_PostType: str, Message_json: dict) -> None:
     elif event_PostType == "事件":
         event_Notice_Type = Message_json.get("notice_type", "")
 
-        if event_Notice_Type == "群成员增加":
+        if event_Notice_Type == "群成员增加" or event_Notice_Type == "群成员邀请入群":
             tasks.append(Plugin_Api.Plugins_Notice_GroupIncrease(Message_json))
-        elif event_Notice_Type == "群成员减少":
+        elif event_Notice_Type == "群成员减少" or event_Notice_Type == "群成员被踢出":
             tasks.append(Plugin_Api.Plugins_Notice_GroupDecrease(Message_json))
 
     if tasks:

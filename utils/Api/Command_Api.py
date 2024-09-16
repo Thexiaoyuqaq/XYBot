@@ -1,7 +1,10 @@
+import asyncio
+import json
 import os
 import httpx
 from utils.Manager.Config_Manager import connect_config_load
 from utils.Manager.Log_Manager import Log
+from Global.Global import GlobalVal
 
 logger = Log()
 
@@ -28,35 +31,49 @@ class APIWrapper:
         return await self.async_request_post(endpoint, **params)  
 
 
+    # 撤回消息
     async def delete_msg(self, Message_ID: int) -> dict:
         if "perpetua" in self.connect_config:
             return await self.post(endpoint="/delete_msg", message_id=Message_ID)
         else:
             return "这个API暂未支持"
 
+    # 操作好友添加请求
     async def set_friend_add_request(self, flag: str, approve: bool, remark: str = None) -> dict:
         if "perpetua" in self.connect_config:
             return await self.post(endpoint="/set_friend_add_request", flag=flag, approve=approve, remark=remark)
         else:
             return "这个API暂未支持"
 
+    # 操作加群请求
     async def set_group_add_request(self, flag: str, type: str, approve: bool, reason: str = None) -> dict:
         if "perpetua" in self.connect_config:
             return await self.post(endpoint="/set_group_add_request", flag=flag, type=type, approve=approve, reason=reason)
         else:
             return "这个API暂未支持"
-
-    async def get_group_info(self, Group_ID: int) -> dict:
+    
+    # 设置群名片
+    async def set_group_card(self, group_id: int, user_id: int, card: str = "") -> dict:
         if "perpetua" in self.connect_config:
-            return await self.post(endpoint="/get_group_info", group_id=Group_ID, no_cache=False)
+            return await self.post(endpoint="/set_group_card", group_id=group_id, user_id=user_id, card=card)
         else:
             return "这个API暂未支持"
+        
+    # 获取群信息
+    async def get_group_info(self, Group_ID: int) -> dict:
+        if "perpetua" in self.connect_config:
+            return await self.post(endpoint="/get_group_info", group_id=Group_ID, no_cache=True)
+        else:
+            return "这个API暂未支持"
+        
+    # 获取陌生人信息
     async def get_stranger_info(self, User_ID: int) -> dict:
         if "perpetua" in self.connect_config:
             return await self.post(endpoint="/get_stranger_info", user_id=User_ID)
         else:
             return "这个API暂未支持"
-
+        
+    # 发送群消息
     async def send_Groupmessage(
             self, Group_ID: int, Message_ID: int, Message: str, reply: bool = False) -> str:
         if "perpetua" in self.connect_config:
@@ -76,6 +93,8 @@ class APIWrapper:
 
             logger.info(message=log_message, flag="Api")
             return message_id
+        
+    # 发送私聊消息
     async def send_PrivateMessage(
             self, User_ID: int, Message_ID: int, Message: str, reply: bool = False
     ) -> str:
