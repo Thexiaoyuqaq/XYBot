@@ -23,7 +23,6 @@ XYBot是一个基于Python，以Lagrange为基础的框架，旨在简化创建�
 | API                      | 功能                   |
 | ------------------------ | ---------------------- |
 | [/send_group_msg](https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_group_msg-%E5%8F%91%E9%80%81%E7%BE%A4%E6%B6%88%E6%81%AF)          | 发送群消息           |
-| ------------------------ | ---------------------- |
 | [/set_group_card]([https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_group_msg-%E5%8F%91%E9%80%81%E7%BE%A4%E6%B6%88%E6%81%AF](https://github.com/botuniverse/onebot-11/blob/master/api/public.md#set_group_card-%E8%AE%BE%E7%BD%AE%E7%BE%A4%E5%90%8D%E7%89%87%E7%BE%A4%E5%A4%87%E6%B3%A8))          | 设置群名片           |
 | [/get_group_info](https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_info-%E8%8E%B7%E5%8F%96%E7%BE%A4%E4%BF%A1%E6%81%AF)          | 获取群信息           |
 | [/delete_msg](https://github.com/botuniverse/onebot-11/blob/master/api/public.md#delete_msg-%E6%92%A4%E5%9B%9E%E6%B6%88%E6%81%AF)          | 撤回消息           |
