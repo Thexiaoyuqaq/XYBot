@@ -24,7 +24,7 @@ class APIWrapper:
                 print(f"无法调用 HTTP API：{e}")
                 return None
             except httpx.RequestError as e:
-                print(f"出现错误: 无法调用{endpoint}端点：{e} \ndebug: url({url}) \n params({params}) \n请检查api端口是否畅通，并检查代理服务器是否关闭，如都不能解决请在github反馈")
+                print(f"出现错误，在调用{endpoint}端点时出现错误：{e} \n  Debug: url({url}) \n params({params})  \n请检查api端口是否畅通，并检查代理服务器是否关闭，如都不能解决请在github反馈")
                 return None
             
     async def post(self, endpoint: str, **params):

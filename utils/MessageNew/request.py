@@ -37,8 +37,8 @@ async def format_request(bot_Message_json: Dict) -> Dict:
     request_type = bot_Message_json.get("request_type", "none")
 
     if request_type == "group":
-        return format_group_request(bot_Message_json)
+        return await format_group_request(bot_Message_json)
     elif request_type == "friend":
-        return format_friend_request(bot_Message_json)
+        return await format_friend_request(bot_Message_json)
     else:
         return bot_Message_json
