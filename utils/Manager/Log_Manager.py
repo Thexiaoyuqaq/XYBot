@@ -3,10 +3,17 @@
 # @Time     : 0:40
 # @Author   :Endermite
 
-# 一个简易的日志系统，未来可能用到
-
 import sys
 import datetime
+import os
+from enum import Enum
+
+
+class LogLevel(Enum):
+    INFO = "信息"
+    WARNING = "警告"
+    ERROR = "错误"
+    DEBUG = "调试"
 
 
 class Log:
@@ -14,12 +21,22 @@ class Log:
     简陋的日志发送
     """
 
-    def __init__(self):
+    def __init__(self, log_to_file=False):
+        self.log_to_file = log_to_file
         if sys.platform.lower().startswith("win"):
-            # 适配windows终端彩色字体，其他系统暂不支持
             self.color_text = self.color_text_windows
         else:
             self.color_text = self.color_text_other
+        self.log_file_path = "log.txt"
+
+        # 如果启用文件日志，确保日志文件存在
+        if self.log_to_file:
+            with open(self.log_file_path, "a") as f:
+                f.write("日志系统启动\n")
+
+    def generate_timestamp(self):
+        """生成当前时间戳"""
+        return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     @staticmethod
     def color_text_other(text: str, color: str) -> str:
@@ -28,11 +45,7 @@ class Log:
 
     @staticmethod
     def color_text_windows(text: str, color: str) -> str:
-        """
-        可以拿来单独使用
-        :param text: 文本
-        :param color: 颜色
-        """
+        """ Windows终端彩色文本 """
         colors = {
             "black": 3,
             "red": 1,
@@ -45,54 +58,40 @@ class Log:
         }
         return f"\033[3{colors[color]}m{text}\033[0m"
 
+    def log(self, level: LogLevel, message: str, flag: str = "") -> None:
+        """ 通用日志方法 """
+        timestamp = self.generate_timestamp()
+        colored_timestamp = self.color_text(timestamp, "green")
+        colored_flag = self.color_text(flag, "cyan")
+        log_type = self.color_text(level.value, self.get_color_for_level(level))
+
+        log_message = f"{colored_timestamp} [{log_type}] {colored_flag}| {message}"
+        print(log_message)
+
+        # 写入文件日志
+        if self.log_to_file:
+            with open(self.log_file_path, "a") as f:
+                f.write(f"{log_message}\n")
+
+    def get_color_for_level(self, level: LogLevel) -> str:
+        """ 根据日志级别返回颜色 """
+        if level == LogLevel.INFO:
+            return "white"
+        elif level == LogLevel.WARNING:
+            return "yellow"
+        elif level == LogLevel.ERROR:
+            return "red"
+        elif level == LogLevel.DEBUG:
+            return "cyan"
+
     def info(self, message: str, flag: str = "") -> None:
-        """
-        输出info信息
-        :param message: 信息
-        :param flag: 标记（可选）
-        :return: None
-        """
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        timestamp = self.color_text(timestamp, "green")
-        log_type = self.color_text("信息", "white")
-        flag = self.color_text(flag, "cyan")
-        print(f"{timestamp} [{log_type}] {flag}| {message}")
+        self.log(LogLevel.INFO, message, flag)
 
     def warning(self, message: str, flag: str = "") -> None:
-        """
-        输出warning信息
-        :param message: 信息
-        :param flag: 标记（可选）
-        :return: None
-        """
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        timestamp = self.color_text(timestamp, "green")
-        log_type = self.color_text("警告", "yellow")
-        flag = self.color_text(flag, "cyan")
-        print(f"{timestamp} [{log_type}] {flag}| {message}")
+        self.log(LogLevel.WARNING, message, flag)
 
     def error(self, message: str, flag: str = "") -> None:
-        """
-        输出error信息
-        :param message: 信息
-        :param flag: 标记（可选）
-        :return: None
-        """
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        timestamp = self.color_text(timestamp, "green")
-        log_type = self.color_text("错误", "red")
-        flag = self.color_text(flag, "cyan")
-        print(f"{timestamp} [{log_type}] {flag}| {message}")
+        self.log(LogLevel.ERROR, message, flag)
 
     def debug(self, message: str, flag: str = "") -> None:
-        """
-        输出debug信息
-        :param message: 信息
-        :param flag: 标记（可选）
-        :return: None
-        """
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        timestamp = self.color_text(timestamp, "green")
-        log_type = self.color_text("调试", "cyan")
-        flag = self.color_text(flag, "cyan")
-        print(f"{timestamp} [{log_type}] {flag}| {message}")
+        self.log(LogLevel.DEBUG, message, flag)

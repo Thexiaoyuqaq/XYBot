@@ -12,260 +12,140 @@ class APIWrapper:
     """
 
     async def run_plugin_method(self, plugin, method, *args):
-        """
-        异步运行插件的特定方法。
-
-        参数:
-            plugin: 插件对象。
-            method: 要调用的方法。
-            *args: 要传递给方法的参数。
-        """
+        """异步运行插件的特定方法。"""
         if hasattr(plugin, method) and callable(getattr(plugin, method)):
             try:
                 await getattr(plugin, method)(*args)
-            except Exception as e:
+            except Exception:
                 plugin_name = plugin.get_plugin_info().get('name', plugin.__class__.__name__)
-                traceback_str = traceback.format_exc()
-                logger.error(f"错误: {str(traceback_str)}", flag=plugin_name)
+                logger.error(
+                    f"插件 {plugin_name} 执行 {method} 时出现错误:\n{traceback.format_exc()}",
+                    flag=plugin_name
+                )
 
     async def run_plugins(self, method_name, *args):
-        """
-        异步运行所有插件的指定方法。
-
-        参数:
-            method_name: 要调用的方法名称。
-            *args: 要传递给方法的参数。
-        """
-        tasks = []
-        for _, plugin in GlobalVal.plugin_list:
-            tasks.append(
-                asyncio.create_task(self.run_plugin_method(plugin, method_name, *args))
-            )
+        """异步运行所有插件的指定方法。"""
+        tasks = [
+            asyncio.create_task(self.run_plugin_method(plugin, method_name, *args))
+            for _, plugin in GlobalVal.plugin_list
+        ]
         await asyncio.gather(*tasks)
 
-    async def Plugins_Group_Message(self, message):
+    # -------------------- 事件处理逻辑 --------------------
+
+    async def handle_event(self, event_type, message):
         """
-        处理群消息的插件方法。
+        通用事件处理方法，动态调用插件对应的事件处理逻辑。
 
         参数:
-            message: 消息内容。
+            event_type: 事件类型（如 "GroupMessage", "Notice_GroupIncrease" 等）。
+            message: 事件相关的消息数据。
         """
-        class Message_Builder:
-            """
-            构建消息的辅助类。
-            """
-            def __init__(self, message):
-                self.message = message
+        message_api = self.Message_Builder(message)
+        await self.run_plugins(event_type, message_api, message)
 
-            async def Get_Group_GroupID(self):
-                """获取群聊的ID。"""
-                return self.message["group"]["group_id"]
+    # -------------------- 消息构建器 --------------------
 
-            async def Get_Group_GroupName(self):
-                """获取群聊的名称。"""
-                return self.message["group"]["group_name"]
+    class Message_Builder:
+        """构建消息的辅助类，用于从消息中提取常用字段。"""
 
-            async def Get_Sender_User_role(self):
-                """获取发送消息的用户角色。"""
-                return self.message["sender"]["user_role"]
+        def __init__(self, message):
+            self.message = message
 
-            async def Get_Sender_UserID(self):
-                """获取发送消息的用户ID。"""
-                return self.message["sender"]["user_id"]
+        async def Get(self, *keys, default=None):
+            """通用获取方法，避免 KeyError。"""
+            data = self.message
+            for key in keys:
+                data = data.get(key, {})
+            return data or default
 
-            async def Get_Sender_NickName(self):
-                """获取发送消息的用户昵称。"""
-                return self.message["sender"]["user_nickname"]
-            
-            async def Get_Sender_UserCard(self):
-                """获取发送消息的用户名片。"""
-                return self.message["sender"]["user_card"]
+        async def Get_Group_GroupID(self):
+            return await self.Get("group", "group_id")
 
-            async def Get_Message_Message(self):
-                """获取消息内容。"""
-                return self.message["message"]["message"]
+        async def Get_Group_GroupName(self):
+            return await self.Get("group", "group_name")
 
-            async def Get_Message_MessageID(self):
-                """获取消息ID。"""
-                return self.message["message"]["message_id"]
+        async def Get_Sender_UserID(self):
+            return await self.Get("sender", "user_id")
+        
+        async def Get_Sender_UserRole(self):
+            return await self.Get("sender", "user_role")
 
-            async def Get_Message_Message_Time(self):
-                """获取消息发送时间。"""
-                return self.message["message"]["message_time"]
+        async def Get_Sender_NickName(self):
+            return await self.Get("sender", "user_nickname")
 
-        message_api = Message_Builder(message)
-        await self.run_plugins("GroupMessage", message_api, message)
+        async def Get_Sender_UserCard(self):
+            return await self.Get("sender", "user_card")
+        
+        async def Get_Message_Message(self):
+            """兼容旧插件的调用方式，获取消息内容。"""
+            return await self.Get_Message_Content()
+
+        async def Get_Message_Content(self):
+            """新的消息内容获取方法。"""
+            return self.message["message"]["message"]
+
+        async def Get_Message_ID(self):
+            return await self.Get("message", "message_id")
+
+        async def Get_Message_Time(self):
+            return await self.Get("message", "message_time")
+
+        async def Get_Request_GroupID(self):
+            return await self.Get("group_id")
+
+        async def Get_Request_UserID(self):
+            return await self.Get("user_id")
+
+        async def Get_Request_Comment(self):
+            return await self.Get("comment")
+
+        async def Get_Request_Flag(self):
+            return await self.Get("flag")
+
+        async def Get_User_JoinType(self):
+            return await self.Get("event", "sub_type")
+
+        async def Get_Event_Time(self):
+            return await self.Get("event", "time")
+
+        async def Get_Operator_UserID(self):
+            return await self.Get("event", "operator_id")
+
+    # -------------------- 插件事件接口 --------------------
+
+    async def Plugins_Group_Message(self, message):
+        """处理群消息事件。"""
+        await self.handle_event("GroupMessage", message)
 
     async def Plugins_Private_Message(self, message):
-        """
-        处理私聊消息的插件方法。
-
-        参数:
-            message: 消息内容。
-        """
-        class Message_Builder:
-            """
-            构建消息的辅助类。
-            """
-            def __init__(self, message):
-                self.message = message
-
-            async def Get_Sender_UserID(self):
-                """获取发送消息的用户ID。"""
-                return self.message["sender"]["user_id"]
-
-            async def Get_Sender_NickName(self):
-                """获取发送消息的用户昵称。"""
-                return self.message["sender"]["user_nickname"]
-
-            async def Get_Message_Message(self):
-                """获取消息内容。"""
-                return self.message["message"]["message"]
-
-            async def Get_Message_MessageID(self):
-                """获取消息ID。"""
-                return self.message["message"]["message_id"]
-
-            async def Get_Message_Message_Time(self):
-                """获取消息发送时间。"""
-                return self.message["message"]["message_time"]
-
-        message_api = Message_Builder(message)
-        await self.run_plugins("PrivateMessage", message_api, message)
+        """处理私聊消息事件。"""
+        await self.handle_event("PrivateMessage", message)
 
     async def Plugins_Request_Friend(self, message):
-        """
-        处理好友请求的插件方法。
+        """处理好友请求事件。"""
+        await self.handle_event("Request_Friend", message)
 
-        参数:
-            message: 请求消息内容。
-        """
-        await self.run_plugins("Request_Friend", message)
-    
-    # 处理群聊申请事件的插件方法
     async def Plugins_Request_Group(self, message):
-        """
-        处理群聊申请事件的插件方法。
-
-        参数:
-            message: 请求消息内容。
-        """
-        class Message_Builder:
-            """
-            构建消息的辅助类。
-            """
-            def __init__(self, message):
-                self.message = message
-
-            # 获取请求的群号
-            async def Get_Request_GroupID(self):
-                """获取请求的群号。"""
-                return self.message["group_id"]
-
-            # 获取事件人QQ号：申请人的qq号
-            async def Get_Request_UserID(self):  
-                """获取事件人的QQ号（申请人）。"""
-                return self.message["user_id"]
-
-            # 加群验证消息
-            async def Get_Request_Comment(self):
-                """获取加群验证消息。"""
-                return self.message["comment"]
-
-            # 获取请求时间
-            async def Get_Request_Time(self):
-                """获取请求时间。"""
-                return self.message["time"]
-
-            # 获取请求flag，在操作同意和拒绝时需要用到 flag分为：主动、邀请
-            async def Get_Request_Flag(self):
-                """获取请求的标志。"""
-                return self.message["flag"]
-            
-        message_api = Message_Builder(message)
-        await self.run_plugins("Request_Group", message_api, message)
+        """处理群聊申请事件。"""
+        await self.handle_event("Request_Group", message)
 
     async def Plugins_Notice_GroupIncrease(self, message):
-        """
-        处理群成员加入通知事件的插件方法。
-
-        参数:
-            message: 通知消息内容。
-        """
-        class Message_Builder:
-            """
-            构建消息的辅助类。
-            """
-            def __init__(self, message):
-                self.message = message
-            
-            # 获取事件群号
-            async def Get_Group_GroupID(self):
-                """获取事件群号。"""
-                return self.message["event"]["group_id"]
-
-            # 获取事件加入类型：
-            # 返回： invite：邀请入群 approve：主动入群
-            async def Get_User_JoinType(self):  
-                """获取用户加入类型。"""
-                return self.message["event"]["sub_type"]
-            
-            # 获取事件人QQ号
-            # 也就是 申请人/被邀请人QQ号
-            async def Get_Sender_UserID(self):  
-                """获取事件人的QQ号。"""
-                return self.message["event"]["user_id"]
-
-            # 操作人QQ号
-            # 也就是 处理人QQ号
-            # 在用户主动申请 则为审核管理的qq
-            # 在用户被拉入群聊 则为拉人的用户qq
-            async def Get_Operator_UserID(self):
-                """获取操作人的QQ号。"""
-                return self.message["event"]["operator_id"]
-
-            # 事件时间 
-            async def Get_Event_Time(self):
-                """获取事件时间。"""
-                return self.message["event"]["time"]
-
-        message_api = Message_Builder(message)
-        await self.run_plugins("Notice_GroupIncrease", message_api, message)
+        """处理群成员加入通知事件。"""
+        await self.handle_event("Notice_GroupIncrease", message)
 
     async def Plugins_Notice_GroupDecrease(self, message):
-        class Message_Builder:
-            def __init__(self, message):
-                self.message = message
-            
-            #获取事件群号
-            async def Get_Group_GroupID(self):
-                return self.message["event"]["group_id"]
-
-            #获取事件退群类型：
-            # 返回： kick：被踢出 leave: 主动退群 kick_me: 自己被踢出
-            async def Get_User_LeaveType(self):  
-                return self.message["event"]["sub_type"]
-            
-            # 获取事件人QQ号
-            # 也就是 退群用户的QQ号
-            async def Get_Sender_UserID(self):  
-
-                return self.message["event"]["user_id"]
-            # 操作人QQ号
-            # 如果是主动退群，则为退群用户本身
-            # 如果是管理员踢出，则为管理员
-            async def Get_Operator_UserID(self):
-                return self.message["event"]["operator_id"]
-            #事件时间 
-            async def Get_Event_Time(self):
-                return self.message["event"]["time"]
-        message_api = Message_Builder(message)
-        await self.run_plugins("Notice_GroupDecrease", message_api, message)
+        """处理群成员减少通知事件。"""
+        await self.handle_event("Notice_GroupDecrease", message)
 
     async def Plugins_Start(self):
+        """运行所有插件的 Start 方法。"""
         await self.run_plugins("Start")
 
     async def Plugins_Stop(self):
+        """运行所有插件的 Stop 方法。"""
         await self.run_plugins("Stop")
 
+
+# 实例化 APIWrapper
 Plugin_Api = APIWrapper()

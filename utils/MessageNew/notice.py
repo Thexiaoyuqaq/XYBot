@@ -96,6 +96,7 @@ async def format_notice(bot_Message_json: Dict) -> Dict:
                         "action_text": bot_Message_json.get("action", "戳了戳"),
                         "action_suffix": bot_Message_json.get("suffix", ""),
                         "target_id": bot_Message_json.get("target_id", 0),
+                        "sub_type": "戳一戳"
                     }
                 )
             elif sub_type == "honor":
@@ -103,6 +104,7 @@ async def format_notice(bot_Message_json: Dict) -> Dict:
                     {
                         "target_id": bot_Message_json.get("target_id", 0),
                         "honor_type": bot_Message_json.get("honor_type", ""),
+                        "sub_type": "群荣誉变更"
                     }
                 )
 
