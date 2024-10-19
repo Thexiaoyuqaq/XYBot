@@ -41,7 +41,7 @@ class APIWrapper:
             event_type: 事件类型（如 "GroupMessage", "Notice_GroupIncrease" 等）。
             message: 事件相关的消息数据。
         """
-        message_api = self.Message_Builder(message)
+        message_api = self.Message_Builder(event_type,message)
         await self.run_plugins(event_type, message_api, message)
 
     # -------------------- 消息构建器 --------------------
@@ -49,8 +49,9 @@ class APIWrapper:
     class Message_Builder:
         """构建消息的辅助类，用于从消息中提取常用字段。"""
 
-        def __init__(self, message):
+        def __init__(self, event_type, message):
             self.message = message
+            self.event_type = event_type
 
         async def Get(self, *keys, default=None):
             """通用获取方法，避免 KeyError。"""
@@ -60,13 +61,19 @@ class APIWrapper:
             return data or default
 
         async def Get_Group_GroupID(self):
-            return await self.Get("group", "group_id")
-
+            if self.event_type == "GroupMessage":
+                return await self.Get("group", "group_id")
+            else:
+                return await self.Get("event", "group_id")
+            
         async def Get_Group_GroupName(self):
             return await self.Get("group", "group_name")
 
         async def Get_Sender_UserID(self):
-            return await self.Get("sender", "user_id")
+            if self.event_type == "GroupMessage":
+                return await self.Get("sender", "user_id")
+            else:
+                return await self.Get("event", "user_id")
         
         async def Get_Sender_UserRole(self):
             return await self.Get("sender", "user_role")

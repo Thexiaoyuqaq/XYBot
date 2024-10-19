@@ -20,12 +20,12 @@ async def log_notice_event(logger, event_original):
     elif notice_type == "群成员减少":
         sub_type = event.get("sub_type", "")
         action = "主动退群" if sub_type == "leave" else "被踢出群聊" if sub_type == "kick" else "登录号被踢出"
-        logger.info(f"[事件][群聊][减少] ({group_id}) {operator_id} {action} {user_id}", flag="Log")
+        logger.info(f"[事件][群聊][减少] {user_id} {action} {group_id}  操作人： {operator_id}", flag="Log")
 
     elif notice_type == "群成员增加":
         sub_type = event.get("sub_type", "")
-        action = "管理员同意入群" if sub_type == "approve" else "管理员邀请入群"
-        logger.info(f"[事件][群聊][增加] ({group_id}) {operator_id} {action} {user_id}", flag="Log")
+        action = "被管理员同意入群" if sub_type == "approve" else "被管理员邀请入群"
+        logger.info(f"[事件][群聊][增加] {user_id} {action} {group_id}  操作人： {operator_id} ", flag="Log")
 
     elif notice_type == "群禁言":
         sub_type = event.get("sub_type", "")
@@ -36,7 +36,7 @@ async def log_notice_event(logger, event_original):
     elif notice_type == "群消息撤回":
         message_id = event.get("message_id", "")
         tip = event.get("tip", "")
-        logger.info(f"[事件][群聊][撤回] ({group_id}) {user_id} 撤回了消息,{tip}  ——({message_id})", flag="Log")
+        logger.info(f"[事件][群聊][撤回] ({group_id}) {user_id} 撤回了一条消息,{tip}  ——({message_id})", flag="Log")
 
     elif notice_type == "好友消息撤回":
         message_id = event.get("message_id", "")
