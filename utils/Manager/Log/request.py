@@ -1,4 +1,4 @@
-async def log_request_event(logger, event_original):
+async def log_request_event(logger, event_original, type = "request"):
     request_type = event_original.get("request_type", "")
     if request_type == "群聊请求":
         data = event_original.get("request", {})
