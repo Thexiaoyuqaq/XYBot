@@ -1,5 +1,3 @@
-from utils.Manager.Log_Manager import Log
-
 async def log_message_event(logger, event_original, message_type):
     """Log message events with full details."""
     sender = event_original.get("sender", {})

@@ -1,132 +1,181 @@
-import os
-import json
+# main.py
 import asyncio
+import json
 import traceback
 import websockets
-from pyppeteer import launch
+from typing import Optional, Dict, Any
+from contextlib import asynccontextmanager
+
 from utils.Manager.Config_Manager import config_create, config_load, connect_config_load
-from utils.Api.Plugin_Api import Plugin_Api
-from utils.Api.Bot_Api import Bot
-from utils.Manager.Plugin_Manager import PluginManage
+from utils.Manager.Event_Manager import EventManager
+from utils.Manager.Plugin_Manager import PluginManager
 from utils.Manager.Log_Manager import Log
-from Log import cmd_Log
+from utils.Api.Bot_Api import Bot
+from utils.Api.Plugin_Api import Plugin_Api
 from Global.Global import GlobalVal
-from utils.Manager.Message_Manager import MessageNew
+from pyppeteer import launch
 
 logger = Log()
-GlobalVal.lock = asyncio.Lock()
 
-# 初始化配置和插件管理器
-config_create()
-config = config_load()
-plugin_manager = PluginManage(plugin_path="plugins")
 
-# 加载插件（仅在连接配置存在时）
-if os.path.exists("config/Bot/connect.json"):
-    GlobalVal.plugin_list = plugin_manager.load_plugins()
+class BotApplication:
+    """主应用类，管理机器人的生命周期"""
+    
+    def __init__(self):
+        self.logger = Log()
+        self.event_manager = EventManager()
+        self.plugin_manager = PluginManager()
+        self.websocket: Optional[websockets.WebSocketClientProtocol] = None
+        self.running = False
+        self.reconnect_attempts = 0
+        self.max_reconnect_attempts = 10
+        self.reconnect_delay = 5
+        
+    async def initialize(self):
+        """初始化应用程序"""
+        try:
+            # 初始化配置
+            config_create()
+            self.config = config_load()
+            
+            # 初始化Bot API
+            await Bot.initialization()
+            
+            # 初始化全局锁
+            GlobalVal.lock = asyncio.Lock()
+            
+            # 加载插件
+            await self.plugin_manager.initialize()
+            loaded_count = await self.plugin_manager.load_all_plugins()
+            self.logger.info(f"成功加载 {loaded_count} 个插件", flag="Main")
 
-async def process_message(event_original_str: str) -> None:
-    """处理收到的消息"""
-    try:
-        event_original = json.loads(event_original_str)
-        if event_original and "post_type" in event_original:
-            Message_json = await MessageNew(event_original)
-            if Message_json:
-                event_PostType = Message_json.get("post_type", "none")
-                await asyncio.gather(
-                    Message_log(event_PostType, Message_json),
-                    handle_message_cq(event_PostType, Message_json)
-                )
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON 解码错误: {e}")
-    except Exception as e:
-        logger.error(f"处理消息时发生错误：{traceback.format_exc()}", flag="Main")
-
-async def Message_log(event_PostType: str, Message_json: dict) -> None:
-    """记录非心跳包消息"""
-    if event_PostType != "心跳包":
-        await cmd_Log(event_PostType, Message_json)
-
-async def handle_message_cq(event_PostType: str, Message_json: dict) -> None:
-    """根据事件类型处理消息"""
-    tasks = []
-    if event_PostType == "消息":
-        await handle_message_type(Message_json, tasks)
-    elif event_PostType == "请求":
-        await handle_request_type(Message_json, tasks)
-    elif event_PostType == "事件":
-        await handle_event_type(Message_json, tasks)
-
-    if tasks:
-        await asyncio.gather(*tasks)
-
-async def handle_message_type(Message_json: dict, tasks: list) -> None:
-    """处理普通消息"""
-    message_type = Message_json.get("message_type", "")
-    if message_type == "群聊":
-        tasks.append(Plugin_Api.Plugins_Group_Message(Message_json))
-    elif message_type == "好友":
-        tasks.append(Plugin_Api.Plugins_Private_Message(Message_json))
-
-async def handle_request_type(Message_json: dict, tasks: list) -> None:
-    """处理请求消息"""
-    request_type = Message_json.get("request_type", "")
-    if request_type == "好友请求":
-        tasks.append(Plugin_Api.Plugins_Request_Friend(Message_json))
-    elif request_type == "群聊请求":
-        tasks.append(Plugin_Api.Plugins_Request_Group(Message_json))
-
-async def handle_event_type(Message_json: dict, tasks: list) -> None:
-    """处理事件消息"""
-    notice_type = Message_json.get("notice_type", "")
-    if notice_type == "群成员增加":
-        tasks.append(Plugin_Api.Plugins_Notice_GroupIncrease(Message_json))
-    elif notice_type == "群成员减少":
-        tasks.append(Plugin_Api.Plugins_Notice_GroupDecrease(Message_json))
-
-async def main() -> None:
-    """主入口，初始化机器人并建立连接"""
-    try:
-        await Bot.initialization()
-        connect_config = connect_config_load()
-        await initialize_connection(connect_config)
-    except Exception:
-        logger.error(f"主程序出错：{traceback.format_exc()}", flag="Main")
-
-async def initialize_connection(connect_config: dict) -> None:
-    """初始化连接"""
-    if "perpetua" in connect_config:
-        logger.info("当前选用 Lagrange 方式连接", flag="Main")
-        await gocq_start_server()
-    else:
-        logger.error("未知接入方式", flag="Main")
-
-async def gocq_start_server() -> None:
-    """启动 WebSocket 服务器"""
-    try:
-        connect_config = connect_config_load()
-        host = connect_config["perpetua"]["host"]
-        websocket_port = int(connect_config["perpetua"]["websocket_port"])
-        suffix = connect_config["perpetua"]["suffix"]
-
-        async with websockets.connect(f"ws://{host}:{websocket_port}/{suffix}") as websocket:
+            Plugin_Api.set_plugin_manager(self.plugin_manager)
+            
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"初始化失败: {traceback.format_exc()}", flag="Main")
+            return False
+    
+    async def process_message(self, message_str: str):
+        """处理单条消息"""
+        try:
+            message_data = json.loads(message_str)
+            if not message_data or "post_type" not in message_data:
+                return
+                
+            # 使用事件管理器处理消息
+            await self.event_manager.process_event(message_data)
+            
+        except json.JSONDecodeError as e:
+            self.logger.error(f"JSON 解析错误: {e}", flag="Main")
+        except Exception as e:
+            self.logger.error(f"处理消息时发生错误: {traceback.format_exc()}", flag="Main")
+    
+    @asynccontextmanager
+    async def websocket_connection(self, config: Dict[str, Any]):
+        """WebSocket连接上下文管理器"""
+        host = config["perpetua"]["host"]
+        port = config["perpetua"]["websocket_port"]
+        suffix = config["perpetua"]["suffix"]
+        uri = f"ws://{host}:{port}/{suffix}"
+        
+        websocket = None
+        try:
+            websocket = await websockets.connect(uri)
             GlobalVal.websocket = websocket
-            logger.info("[WS] 成功与 Lagrange-Ws 建立链接", flag="Main")
+            self.websocket = websocket
+            self.logger.info("[WS] 成功与 Lagrange-Ws 建立链接", flag="Main")
+            yield websocket
+        finally:
+            if websocket:
+                GlobalVal.websocket = None
+                self.websocket = None
+                await websocket.close()
+    
+    async def handle_websocket(self):
+        """处理WebSocket连接和消息"""
+        connect_config = connect_config_load()
+        
+        if not connect_config or "perpetua" not in connect_config:
+            self.logger.error("未找到有效的连接配置", flag="Main")
+            return
+        
+        while self.running and self.reconnect_attempts < self.max_reconnect_attempts:
+            try:
+                async with self.websocket_connection(connect_config) as websocket:
+                    self.reconnect_attempts = 0  # 重置重连计数
+                    
+                    # 触发插件启动事件
+                    await self.plugin_manager.trigger_event("Start")
+                    
+                    # 消息处理循环
+                    async for message in websocket:
+                        if not self.running:
+                            break
+                        # 创建任务处理消息，避免阻塞接收
+                        asyncio.create_task(self.process_message(message))
+                        
+            except (websockets.ConnectionClosed, websockets.ConnectionClosedError):
+                self.logger.warning("WebSocket连接已关闭", flag="Main")
+            except Exception as e:
+                self.logger.error(f"WebSocket连接出错: {str(e)}", flag="Main")
+            
+            if self.running:
+                self.reconnect_attempts += 1
+                wait_time = min(self.reconnect_delay * self.reconnect_attempts, 60)
+                self.logger.info(
+                    f"将在 {wait_time} 秒后重试连接 (尝试 {self.reconnect_attempts}/{self.max_reconnect_attempts})",
+                    flag="Main"
+                )
+                await asyncio.sleep(wait_time)
+    
+    async def run(self):
+        """运行主程序"""
+        if not await self.initialize():
+            self.logger.error("初始化失败，程序退出", flag="Main")
+            return
+        
+        self.running = True
+        
+        try:
+            # 启动WebSocket处理
+            await self.handle_websocket()
+            
+        except KeyboardInterrupt:
+            self.logger.info("收到退出信号", flag="Main")
+        except Exception as e:
+            self.logger.error(f"运行时错误: {traceback.format_exc()}", flag="Main")
+        finally:
+            await self.shutdown()
+    
+    async def shutdown(self):
+        """关闭程序"""
+        self.running = False
+        
+        # 触发插件停止事件
+        await self.plugin_manager.trigger_event("Stop")
+        
+        # 关闭WebSocket连接
+        if self.websocket:
+            await self.websocket.close()
+        
+        # 卸载所有插件
+        await self.plugin_manager.unload_all_plugins()
+        
+        self.logger.info("程序已正常关闭", flag="Main")
 
-            await Plugin_Api.Plugins_Start()
 
-            async for message in websocket:
-                asyncio.create_task(process_message(message))
-    except Exception:
-        logger.error(f"在连接 WS 出错：{traceback.format_exc()}", flag="Main")
+async def main():
+    """程序入口"""
+    app = BotApplication()
+    await app.run()
+
 
 if __name__ == "__main__":
     try:
-        if config["main"].get("Debug", "").lower() == "true":
-            logger.warning("当前调试模式已开启", flag="Main")
         asyncio.run(main())
     except KeyboardInterrupt:
-        asyncio.run(Plugin_Api.Plugins_Stop())
-        logger.info("程序已终止", flag="Main")
-    except Exception:
-        logger.error(f"asyncio.run 出错：{traceback.format_exc()}", flag="Main")
+        print("\n程序已终止")
+    except Exception as e:
+        print(f"程序异常退出: {e}")

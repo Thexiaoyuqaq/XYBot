@@ -1,4 +1,3 @@
-import asyncio
 from typing import Dict
 from utils.MessageNew import message, meta_event, notice, request
 

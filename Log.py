@@ -1,4 +1,3 @@
-import asyncio
 from utils.Manager.Log.notice import log_notice_event
 from utils.Manager.Log.message import log_message_event
 from utils.Manager.Log.request import log_request_event
