@@ -1,10 +1,44 @@
-# main.py
+import os
+import sys
+
+def setup_console_output():
+    os.environ['PYTHONUNBUFFERED'] = '1'
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    
+    if sys.platform == 'win32':
+        try:
+            os.system('chcp 65001 >nul 2>&1')
+        except Exception:
+            pass
+    
+    is_frozen = getattr(sys, 'frozen', False)
+    
+    if is_frozen:
+        try:
+            if sys.stdout is None or not hasattr(sys.stdout, 'write'):
+                sys.stdout = open('bot_stdout.log', 'w', encoding='utf-8', buffering=1)
+            if sys.stderr is None or not hasattr(sys.stderr, 'write'):
+                sys.stderr = open('bot_stderr.log', 'w', encoding='utf-8', buffering=1)
+        except Exception:
+            pass
+    
+    try:
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
+        if hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8', line_buffering=True)
+    except Exception:
+        pass
+
+setup_console_output()
+
 import asyncio
 import json
 import traceback
 import websockets
 from typing import Optional, Dict, Any
 from contextlib import asynccontextmanager
+import keyboard
 
 from utils.Manager.Config_Manager import config_create, config_load, connect_config_load
 from utils.Manager.Event_Manager import EventManager
@@ -177,5 +211,11 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n程序已终止")
+        # 添加执行任意键继续
+        print("按下任意键继续...")
+        keyboard.wait()
+        
     except Exception as e:
         print(f"程序异常退出: {e}")
+        print("按下任意键继续...")
+        keyboard.wait()
