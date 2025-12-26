@@ -1,4 +1,3 @@
-# utils/Manager/Plugin_Manager.py
 import os
 import sys
 import importlib
@@ -9,7 +8,6 @@ from typing import Dict, List, Any, Optional, Callable, Set
 from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
-import importlib.util
 
 from utils.Manager.Log_Manager import Log
 from utils.Manager.Config_Manager import config_load
@@ -149,26 +147,14 @@ class PluginManager:
                 return False
                 
             try:
-                # 构建插件文件的完整路径
-                plugin_file = self.plugin_path / f"{plugin_name}.py"
-                if not plugin_file.exists():
-                    self.logger.error(f"插件文件不存在: {plugin_file}", flag="PluginManager")
-                    return False
-            
-                # 动态添加插件目录到 sys.path
-                plugin_dir_str = str(self.plugin_path.absolute())
-                if plugin_dir_str not in sys.path:
-                    sys.path.insert(0, plugin_dir_str)
-            
-                # 使用 spec 加载模块
-                spec = importlib.util.spec_from_file_location(plugin_name, plugin_file)
-                if spec is None or spec.loader is None:
-                    self.logger.error(f"无法创建模块 spec: {plugin_name}", flag="PluginManager")
-                    return False
+                # 导入模块
+                module_path = f"{self.plugin_path.name}.{plugin_name}"
                 
-                module = importlib.util.module_from_spec(spec)
-                sys.modules[plugin_name] = module  # 注册到 sys.modules
-                spec.loader.exec_module(module)
+                if module_path in sys.modules:
+                    # 如果模块已存在，重新加载
+                    module = importlib.reload(sys.modules[module_path])
+                else:
+                    module = importlib.import_module(module_path)
                 
                 # 查找Plugin类
                 plugin_class = getattr(module, "Plugin", None)
@@ -327,6 +313,37 @@ class PluginManager:
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
     
+
+
+    async def trigger_plugin_event(self, plugin_name: str, event_name: str, *args, **kwargs) -> bool:
+        """触发指定插件的事件
+    
+        Args:
+            plugin_name: 插件名称（模块名）
+            event_name: 事件名称
+            *args, **kwargs: 传递给事件的参数
+        
+        Returns:
+            bool: 是否成功触发
+        """
+        if plugin_name not in self._plugins:
+            self.logger.warning(f"插件 {plugin_name} 未加载", flag="PluginManager")
+            return False
+    
+        plugin = self._plugins[plugin_name]
+    
+        # 检查插件是否有该事件方法
+        if not hasattr(plugin.plugin_instance, event_name):
+            self.logger.debug(f"插件 {plugin_name} 没有 {event_name} 方法", flag="PluginManager")
+            return False
+    
+        method = getattr(plugin.plugin_instance, event_name)
+        if callable(method):
+            await self._safe_call(method, *args, **kwargs)
+            return True
+    
+        return False
+
     async def _register_plugin_events(self, plugin_instance: Any, plugin_name: str) -> None:
         """注册插件事件处理器"""
         # 获取所有公开方法
