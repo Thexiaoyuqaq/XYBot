@@ -385,16 +385,6 @@ class Plugin:
         await self.cleanup()
 ```
 
-## 插件管理命令
-
-系统内置了插件管理功能，可以通过以下命令管理插件：
-
-- `/plugman list` - 列出所有插件
-- `/plugman info <插件名>` - 查看插件信息
-- `/plugman reload <插件名>` - 重载插件
-- `/plugman load <插件名>` - 加载插件
-- `/plugman unload <插件名>` - 卸载插件
-
 ## 调试技巧
 
 ### 1. 日志记录
